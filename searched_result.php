@@ -2,7 +2,7 @@
 <html>
   <head>    
     <meta charset="UTF-8">
-    <title>Health Is Wealth</title>
+    <title>Health Is Wealth - Patient</title>
     <meta name="description" content="">
  
     
@@ -58,40 +58,40 @@
 	  	position: absolute;
 	  	top: 10%;
 	  }
-.w3-white, .w3-hover-white:hover {
-    color: #000!important;
-    background-color: #fff!important;
-}
-.w3-padding-16 {
-    padding-top: 16px!important;
-    padding-bottom: 16px!important;
-}
-.w3-padding {
-    padding: 8px 16px!important;
-}
-table#hospital {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-    text-align: center;
+	.w3-white, .w3-hover-white:hover {
+	    color: #000!important;
+	    background-color: #fff!important;
+	}
+	.w3-padding-16 {
+	    padding-top: 16px!important;
+	    padding-bottom: 16px!important;
+	}
+	.w3-padding {
+	    padding: 8px 16px!important;
+	}
+	table#hospital {
+	    font-family: arial, sans-serif;
+	    border-collapse: collapse;
+	    width: 100%;
+	    text-align: center;
 
-}
-table {
-    display: table;
-    border-collapse: separate;
-    box-sizing: border-box;
-    text-indent: initial;
-    border-spacing: 2px;
-    border-color: grey;
-}
-table, th, td {
-  border: 1px solid black;
-  border-radius: 10px;
-  text-align: center;
-}
-th,td{
-	color: greenyellow;
-}
+	}
+	table {
+	    display: table;
+	    border-collapse: separate;
+	    box-sizing: border-box;
+	    text-indent: initial;
+	    border-spacing: 2px;
+	    border-color: grey;
+	}
+	table, th, td {
+	  border: 1px solid black;
+	  border-radius: 10px;
+	  text-align: center;
+	}
+	th,td{
+		color: greenyellow;
+	}
 	</style>
   </head>
  <body class="forsamlldevices">
@@ -138,8 +138,8 @@ if($resultPatient->num_rows>0){
 
 /*$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '$patient_ID' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.allowedTime >CURRENT_TIMESTAMP() 
 GROUP BY ph.hospitalID";//Actual Query*/
-$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '$patient_ID' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.book_flag='1' GROUP BY ph.hospitalID";//Temporary Query
- //echo $fetchAllBookAbleHospital;
+$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient,ha.status FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '".$patient_ID."' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.book_flag='1' GROUP BY ph.hospitalID";//Temporary Query
+ // echo $fetchAllBookAbleHospital;
 $result = $mysqli->query($fetchAllBookAbleHospital);
 if($result->num_rows>0){
 	$result = $mysqli->query($fetchAllBookAbleHospital);
