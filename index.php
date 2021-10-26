@@ -2,7 +2,7 @@
 <html>
   <head>    
     <meta charset="UTF-8">
-    <title>Health Is Wealth</title>
+    <title>Health Is Wealth - Patient</title>
     <meta name="description" content="">
  
     
@@ -58,7 +58,7 @@
 					
 					<div class="sun clearfix">
 						<div class="col-md-12 col-sm-12"  style="color:#fff">
-		 					 Service is available 24x7
+		 					 Service is available for 24x7
 		 				</div>
 						<div class="col-sm-12">
 						   <h1 >ServiceBoxx</h1>  
