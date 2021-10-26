@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 25, 2021 at 10:09 AM
+-- Generation Time: Oct 26, 2021 at 05:00 AM
 -- Server version: 10.1.34-MariaDB
 -- PHP Version: 7.2.8
 
@@ -172,13 +172,13 @@ CREATE TABLE `patienthospital` (
 --
 
 INSERT INTO `patienthospital` (`patientHospitalID`, `doctor_ID`, `hospitalID`, `patient_ID`, `allowedTime`, `book_flag`, `token_no`, `reason`) VALUES
-(1, 2, 1, 1, '2021-10-24 09:00:00', 2, 1, 'Cancelled booking'),
+(1, 2, 1, 1, '2021-10-24 09:15:00', 2, 1, 'Cancelled booking'),
 (2, 1, 1, 2, '2021-10-24 09:00:00', 1, 1, ''),
 (3, 3, 2, 3, '2021-10-24 09:00:00', 1, 1, ''),
 (4, 4, 3, 4, '2021-10-24 09:00:00', 1, 1, ''),
 (5, 5, 4, 5, '2021-10-24 09:00:00', 1, 1, ''),
-(228, 2, 1, 7, '2021-10-24 09:00:00', 1, 2, ''),
-(229, 2, 1, 1, '2021-10-24 09:15:00', 1, 3, '');
+(228, 2, 1, 7, '2021-10-24 10:00:00', 1, 2, ''),
+(229, 2, 1, 1, '2021-10-24 10:15:00', 1, 3, '');
 
 --
 -- Indexes for dumped tables

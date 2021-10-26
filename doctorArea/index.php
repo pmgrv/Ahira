@@ -213,7 +213,7 @@
 			  	$('#phNo').attr("disabled","disabled");
 				
 		    }else{
-		    	alert("Checking hospital for you! ");
+		    	alert("Logging inside");
 			    window.location.replace("doctorDashboard.php?searchdoctor="+data['data']);
 		    }
 

@@ -132,9 +132,11 @@
 					while($rowContact = $resultContactNo->fetch_assoc()){
 						echo '<br>'.$rowContact['hospitalName'];
 						echo '<br>'.$rowContact['hospitalAddress'];
-				}}
+					}
+				}
 				echo '<br>'.$searchdoctor;
 				?>
+<!-- To Get patients list to be checking-->
 				<div class="row"  style="color:#fff">
 					<?php 
 						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
@@ -145,7 +147,7 @@
 
 					<div class="clearfix attop">
 						<div id="right-block" class="col-sm-12" >
-						Total <?php echo $totalPatientAvailable ;?> patient are in the QUEUE<br>
+						Total <?php echo $totalPatientAvailable ;?> patient in the QUEUE<br>
 						<table id="hospital" >
 						  	<tr>
 							    <th style="font-weight: 20px; color:#fff;">Patient Name</th>
@@ -165,12 +167,14 @@
 									$patientDOB =  $rowCountOfPatient['patient_DOB'];
 									$patientAdd =  $rowCountOfPatient['patient_At'];
 									$token_no =  $rowCountOfPatient['token_no'];
+									$getNextPatientID =  $rowCountOfPatient['patient_ID'];
 									// $patientList[]=$token_no;
 									array_push($patientList, $token_no);
 									$patientFullName = $patientFN.' '.$patientLN;
 									if($tokenNoNext>$token_no){
 										$tokenNoNext = $token_no;
 										$getNextPatient = $patientFullName;
+										$getNextPatientID = $getNextPatientID;
 									}
 									$dob=$patientDOB; //date of Birth
 									// echo $dob;
@@ -195,36 +199,114 @@
 				</div>
 				<div class="row"  style="color:#fff">
 					<?php if($totalPatientAvailable>0){?>
-					<form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php">
-						<p id="removeOnceClickOnYes">
-						<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
-						Want to allow to check-up <button href="#" class="btn btn-success" id="submitDataConfirmration" 
-							data-approvedpatientlist="<?=$totalPatientAvailable?>"
-							type="submit"
-							>ALL <?php echo $totalPatientAvailable ;
-							?></button>
-						</p>
-					</form>
+						<form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php">
+							<p id="removeOnceClickOnYes">
+							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
+							Want to allow to check-up <button href="#" class="btn btn-success" id="submitDataConfirmration" 
+								data-approvedpatientlist="<?=$totalPatientAvailable?>"
+								type="submit"
+								>ALL <?php echo $totalPatientAvailable ;
+								?></button>
+							</p>
+						</form>
+						Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a><br><br>
+						<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
+						<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
+						<input type="hidden" id="doctorID" value="<?php echo $doctorID; ?>"></input>
+						Let get in <button href="#" class="btn btn-success" id="setSendNextPatient">YES</button><br> <b style="color: orange;">OR</b><br> WAIT<a>
+						<select id="timeList">
+						  <option value="1">1</option>
+						  <option value="2">2</option>
+						  <option value="5">5</option>
+						  <option value="10">10</option>
+						  <option value="15">15</option>
+						  <option value="20">20</option>
+						  <option value="30">30</option>
+						  <option value="60">60</option>
+						</select></a> MIN
+						<input type="hidden" id="nextPatientIDWait" value="<?php echo $getNextPatientID; ?>"></input>	
+						<input type="hidden" id="nextPatientTokenWait" value="<?php echo $tokenNoNext; ?>"></input>
+						<input type="hidden" id="doctorIDWait" value="<?php echo $doctorID; ?>"></input>
+						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
 						<br><br>
-						Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a>
-						
-						<input type="hidden" id="nextPatientID" value="<?php echo $tokenNoNext; ?>"></input>
-						Let get in <a href="#" class="btn btn-success" id="setSendNextPatient">YES</a> or <a href="#" class="btn btn-success" id="submitDataBookToAcknowledge">WAIT 5 MINUTES</a><br><br>
 					<?php }
 					else{ echo "<b style='color: red;'>No patients in your hospital!</b>" ;}
 					?>
 				</div>
+<!-- To Get Pending patients list -->
+				<div class="row"  style="color:#fff">
+					<?php 
+						$queryToGetPendingPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=4 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
+						// echo $queryToGetPendingPatient;
+						$resultCountOfPatientPending = $mysqli->query($queryToGetPendingPatient);
+						$totalPatientPending = $resultCountOfPatientPending->num_rows;
+					?>
+
+					<div class="clearfix attop">
+						<div id="right-block" class="col-sm-12" >
+						Total <?php echo $totalPatientPending ;?> patient pending<br>
+						<table id="hospital" >
+						  	<tr>
+							    <th style="font-weight: 20px; color:#fff;">Patient Name</th>
+							    <th style="font-weight: 20px; color:#fff;">Age</th>		
+							    <th style="font-weight: 20px; color:#fff;">Contact Number</th>
+							    <th style="font-weight: 20px; color:#fff;">Pending</th>		
+						  	</tr>
+
+								<?php
+								if($resultCountOfPatientPending->num_rows>0){
+								$tokenNoNext = 10000;
+								$patientList = [];
+								$resultCountOfPatientPending = $mysqli->query($queryToGetPendingPatient);
+								while($rowCountOfPatientPending = $resultCountOfPatientPending->fetch_assoc()){
+									$patientFN =  $rowCountOfPatientPending['patient_FirstName'];
+									$patientLN =  $rowCountOfPatientPending['patient_LastName'];
+									$patientDOB =  $rowCountOfPatientPending['patient_DOB'];
+									$patient_ContactNu =  $rowCountOfPatientPending['patient_ContactNu'];
+									$patientAdd =  $rowCountOfPatientPending['patient_At'];
+									$token_no =  $rowCountOfPatientPending['token_no'];
+									$getNextPatientID =  $rowCountOfPatientPending['patient_ID'];
+									$getReason =  $rowCountOfPatientPending['reason'];
+									// $patientList[]=$token_no;
+									array_push($patientList, $token_no);
+									$patientFullName = $patientFN.' '.$patientLN;
+									if($tokenNoNext>$token_no){
+										$tokenNoNext = $token_no;
+										$getNextPatient = $patientFullName;
+										$getNextPatientID = $getNextPatientID;
+									}
+									$dob=$patientDOB; //date of Birth
+									// echo $dob;
+									// $dob='2021-9-8'; //date of Birth
+									$condate=Date('y-m-d'); //Certain fix Date of Age 
+									// $ageOfpatient = getAge($dob,$condate);
+									$ageOfpatient=dateDifference($dob , $condate , $differenceFormat ='%y Year %m Month %d Day'  );
+									?>
+									<tr>
+									    <td><?php echo $patientFullName; ?></td>
+									    <td><?php echo $ageOfpatient;?></td>
+									    <td><a href="tel:<?php echo $patient_ContactNu; ?>"><?php echo $patient_ContactNu; ?></a></td>
+									    <td><?php echo $getReason; ?></td>
+									</tr>
+									<?php
+								} // End INSIDE WHILE
+							}// End INSIDE IF
+						?>
+						</table>
+						</div>
+					</div>
+				</div>
 				<div class="row"  style="color:#fff">
 					HISTORY
-					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>345</b></t></p>
+					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>
 					<p>Today 20 patients checked successfully! and <?php echo $totalPatientAvailable ;?> are in the QUEUE</p>
 					<p>Yesterday, 30 patients have been checked successfully in 8 hours.</p>
 					<p>On dated 28-10-2021 Tuesday 45 patienced have bee checked in 9 hours</p>
 				</div>
 				<?php
 
-			}
-		}
+			}//Outsider WHILE Loop
+		}//Outsider IF Loop
 
 		 ?>
 	</div>
@@ -315,6 +397,41 @@
 <script src="../assets/js/script.js"></script>
 <script src="../assets/js/jquery.placeholder.js"></script>
 <script type="text/javascript">
+//Update Time by Doctor when patient is in the Hospital Queue 
+	$(document).on("click",'#waitingTime',function(){
+	        var timeList = $("#timeList").val();
+	        var nextPatientID = $("#nextPatientID").val();
+	        var doctorIDChangedStatus = $("#doctorID").val();
+	        var nextPatientToken = $("#nextPatientToken").val();
+		  	var json_data = {
+		    	"waitingTimeSetByDoctor":timeList,
+		    	"nextPatientID":nextPatientID,
+		    	"nextPatientToken":nextPatientToken,
+		    	"doctorID":doctorIDChangedStatus
+		  	};
+			$.ajax({
+			  type:"POST",
+			  url:"../PHP/doctorAreaAPIs/setWaitingTimeByDoctor.php",
+			  data: {"DATA": JSON.stringify(json_data)},
+			  beforeSend:function(data){
+			  	alert(JSON.stringify(json_data));
+			  	alert("Sending your data!!");
+			  },
+			  success:function(data){
+			  	alert(data['data']);
+			  	alert("Registration successful!!");
+			    // window.location.replace("index.php");
+			  	// alert(JSON.stringify(json_data));
+			  },
+			  error:function(err){
+			    alert(JSON.stringify(err));
+			  }
+			});
+	    });
+
+</script>
+
+<script type="text/javascript">
 	$(document).ready(function(){
 
 		//Sending book_flag Approval From Doctor to patient directly
@@ -343,33 +460,7 @@
 			  }
 			});
 	    });
-	    //Sending book_flag Approval From Doctor to patient directly
-	    $(document).on('click','#setSendNextPatient',function(){
-		  	// $('#removeOnceClickOnYes').hide();
-	        var nextPatientID = $('#nextPatientID').val();
-	        alert(nextPatientID);
-		  	var json_data = {
-		    	"nextPatientID":nextPatientID
-		  	};
-			/*$.ajax({
-			  type:"POST",
-			  url:"../PHP/setApprovalByDoctor.php",
-			  data: {"DATA": JSON.stringify(json_data)},
-			  beforeSend:function(data){
-			  	// alert(JSON.stringify(json_data));
-			  	alert("Sending your data!!");
-			  },
-			  success:function(data){
-			  	alert("Registration successful!!");
-			    window.location.replace("index.php");
-			  	// alert(JSON.stringify(json_data));
-			  },
-			  error:function(err){
-			    alert(JSON.stringify(err));
-			  }
-			});*/
-	    });
-
+	    
 	    $(document).on('click','#submitData',function(){
 		  //alert("hey");
 		  var json_data = {
@@ -432,6 +523,40 @@
 		});
 	});
 </script>
+
+<script type="text/javascript">
+//Sending book_flag pending when patient is in the Hospital Queue 
+	$(document).on("click",'#setSendNextPatient',function(){
+	        var nextPatientID = $("#nextPatientID").val();
+	        var doctorIDChangedStatus = $("#doctorID").val();
+	        var nextPatientToken = $("#nextPatientToken").val();
+	        // alert(nextPatientID);
+		  	var json_data = {
+		    	"nextPatientID":nextPatientID,
+		    	"nextPatientToken":nextPatientToken,
+		    	"doctorID":doctorIDChangedStatus
+		  	};
+			$.ajax({
+			  type:"POST",
+			  url:"../PHP/doctorAreaAPIs/setPendingByDoctor.php",
+			  data: {"DATA": JSON.stringify(json_data)},
+			  beforeSend:function(data){
+			  	alert(JSON.stringify(json_data));
+			  	alert("Sending your data!!");
+			  },
+			  success:function(data){
+			  	alert(data);
+			  	alert("Registration successful!!");
+			    // window.location.replace("index.php");
+			  	// alert(JSON.stringify(json_data));
+			  },
+			  error:function(err){
+			    alert(JSON.stringify(err));
+			  }
+			});
+	    });
+
+</script>
 <script>
   $("#count-down").TimeCircles(
    {   
@@ -445,8 +570,8 @@
             Minutes: { color: "#fefeee" },
             Seconds: { color: "#fefeee" }
         }
-   }
-);
+	   }
+	);
 
 </script>
     

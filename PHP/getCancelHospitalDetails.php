@@ -38,7 +38,7 @@ if($result->num_rows>0){
 									 and token_no > '".$tokennotosendcancel."'";
 		$resultToUpdate = $mysqli->query($queryGetPatientListToUpdateTime);
 		$numberOfPatientTobeupdated = $resultToUpdate->num_rows;
-		print_r($resultToUpdate->num_rows);
+		// print_r($resultToUpdate->num_rows);
 		if($resultToUpdate->num_rows>0){
 			while($rowPatientToUpdate = $resultToUpdate->fetch_assoc()){
 				$allowedTimeUpdate = $rowPatientToUpdate['allowedTime'];
