@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2021 at 05:00 AM
+-- Generation Time: Oct 26, 2021 at 11:33 AM
 -- Server version: 10.1.34-MariaDB
 -- PHP Version: 7.2.8
 
@@ -68,19 +68,20 @@ CREATE TABLE `doctorhospital` (
   `doctorHospitalID` int(11) NOT NULL,
   `doctor_ID` int(11) NOT NULL,
   `hospital_ID` int(11) NOT NULL,
-  `status` tinyint(4) NOT NULL
+  `status` tinyint(4) NOT NULL,
+  `checkupfees` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `doctorhospital`
 --
 
-INSERT INTO `doctorhospital` (`doctorHospitalID`, `doctor_ID`, `hospital_ID`, `status`) VALUES
-(1, 1, 1, 1),
-(2, 2, 1, 1),
-(3, 3, 2, 1),
-(4, 4, 3, 1),
-(5, 5, 4, 1);
+INSERT INTO `doctorhospital` (`doctorHospitalID`, `doctor_ID`, `hospital_ID`, `status`, `checkupfees`) VALUES
+(1, 1, 1, 1, 150),
+(2, 2, 1, 1, 100),
+(3, 3, 2, 1, 200),
+(4, 4, 3, 1, 150),
+(5, 5, 4, 1, 10);
 
 -- --------------------------------------------------------
 
@@ -164,21 +165,82 @@ CREATE TABLE `patienthospital` (
   `allowedTime` datetime NOT NULL,
   `book_flag` tinyint(3) NOT NULL,
   `token_no` int(11) NOT NULL,
-  `reason` varchar(200) NOT NULL
+  `reason` varchar(200) NOT NULL,
+  `checkupfees` int(11) NOT NULL,
+  `receptionist_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `patienthospital`
 --
 
-INSERT INTO `patienthospital` (`patientHospitalID`, `doctor_ID`, `hospitalID`, `patient_ID`, `allowedTime`, `book_flag`, `token_no`, `reason`) VALUES
-(1, 2, 1, 1, '2021-10-24 09:15:00', 2, 1, 'Cancelled booking'),
-(2, 1, 1, 2, '2021-10-24 09:00:00', 1, 1, ''),
-(3, 3, 2, 3, '2021-10-24 09:00:00', 1, 1, ''),
-(4, 4, 3, 4, '2021-10-24 09:00:00', 1, 1, ''),
-(5, 5, 4, 5, '2021-10-24 09:00:00', 1, 1, ''),
-(228, 2, 1, 7, '2021-10-24 10:00:00', 1, 2, ''),
-(229, 2, 1, 1, '2021-10-24 10:15:00', 1, 3, '');
+INSERT INTO `patienthospital` (`patientHospitalID`, `doctor_ID`, `hospitalID`, `patient_ID`, `allowedTime`, `book_flag`, `token_no`, `reason`, `checkupfees`, `receptionist_ID`) VALUES
+(1, 2, 1, 1, '2021-10-24 09:15:00', 0, 1, 'Cancelled booking', 0, 0),
+(2, 1, 1, 2, '2021-10-24 09:00:00', 1, 1, 'In QUEUE', 0, 0),
+(3, 3, 2, 3, '2021-10-24 09:00:00', 5, 1, 'Paid', 200, 3),
+(4, 4, 3, 4, '2021-10-24 09:00:00', 1, 1, 'In QUEUE', 0, 0),
+(5, 5, 4, 6, '2021-10-24 09:00:00', 1, 1, '', 0, 0),
+(228, 2, 1, 7, '2021-10-24 10:15:00', 5, 2, 'Paid', 100, 1),
+(229, 2, 1, 1, '2021-10-24 10:30:00', 1, 3, 'In QUEUE', 0, 0),
+(230, 2, 1, 5, '2021-10-24 10:45:00', 5, 3, 'Paid', 700, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `receptionistarea`
+--
+
+CREATE TABLE `receptionistarea` (
+  `receptionist_ID` int(11) NOT NULL,
+  `receptionist_AadharNo` varchar(255) NOT NULL,
+  `receptionist_FirstName` varchar(50) NOT NULL,
+  `receptionist_LastName` varchar(50) NOT NULL,
+  `receptionist_DOB` date NOT NULL,
+  `receptionist_Gender` enum('male','female','other') NOT NULL,
+  `receptionist_ContactNu` varchar(11) NOT NULL,
+  `receptionist_WhatsAppNo` enum('yes','no') NOT NULL,
+  `receptionist_houseNo` varchar(50) NOT NULL,
+  `receptionist_Landmark` varchar(50) NOT NULL,
+  `receptionist_At` varchar(50) NOT NULL,
+  `receptionist_Post` varchar(50) NOT NULL,
+  `receptionist_Tah` varchar(50) NOT NULL,
+  `receptionist_Dist` varchar(50) NOT NULL,
+  `receptionist_pinCode` int(11) NOT NULL,
+  `receptionist_HealthInsurance` enum('yes','no') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `receptionistarea`
+--
+
+INSERT INTO `receptionistarea` (`receptionist_ID`, `receptionist_AadharNo`, `receptionist_FirstName`, `receptionist_LastName`, `receptionist_DOB`, `receptionist_Gender`, `receptionist_ContactNu`, `receptionist_WhatsAppNo`, `receptionist_houseNo`, `receptionist_Landmark`, `receptionist_At`, `receptionist_Post`, `receptionist_Tah`, `receptionist_Dist`, `receptionist_pinCode`, `receptionist_HealthInsurance`) VALUES
+(1, '410128972860', 'Trivanta', 'Bhandari', '1995-09-08', 'female', '9067182089', 'yes', 'Murpar', '', '', 'Lohara', 'Deori', 'Gondia', 441908, 'yes'),
+(2, '419012334454', 'Rajeshwari', 'Barse', '1991-10-06', 'female', '9404464342', 'yes', 'Deori', '', 'Deori', 'Deori', 'Deori', 'Gondia', 441900, 'yes'),
+(3, '441123459040', 'Sonu', 'Meshram', '1996-10-06', 'male', '7588414246', 'yes', '', '', 'Gondia', 'Gondia', 'Gondia', 'Gondia', 441880, 'yes');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `receptionisthospital`
+--
+
+CREATE TABLE `receptionisthospital` (
+  `receptionistHospitalID` int(11) NOT NULL,
+  `receptionist_ID` int(11) NOT NULL,
+  `hospital_ID` int(11) NOT NULL,
+  `status` tinyint(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `receptionisthospital`
+--
+
+INSERT INTO `receptionisthospital` (`receptionistHospitalID`, `receptionist_ID`, `hospital_ID`, `status`) VALUES
+(1, 1, 1, 1),
+(2, 2, 1, 1),
+(3, 3, 2, 1),
+(4, 4, 3, 1),
+(5, 5, 4, 1);
 
 --
 -- Indexes for dumped tables
@@ -209,6 +271,18 @@ ALTER TABLE `patienthospital`
   ADD PRIMARY KEY (`patientHospitalID`);
 
 --
+-- Indexes for table `receptionistarea`
+--
+ALTER TABLE `receptionistarea`
+  ADD PRIMARY KEY (`receptionist_ID`);
+
+--
+-- Indexes for table `receptionisthospital`
+--
+ALTER TABLE `receptionisthospital`
+  ADD PRIMARY KEY (`receptionistHospitalID`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -234,7 +308,13 @@ ALTER TABLE `patientarea`
 -- AUTO_INCREMENT for table `patienthospital`
 --
 ALTER TABLE `patienthospital`
-  MODIFY `patientHospitalID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=230;
+  MODIFY `patientHospitalID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
+
+--
+-- AUTO_INCREMENT for table `receptionisthospital`
+--
+ALTER TABLE `receptionisthospital`
+  MODIFY `receptionistHospitalID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
