@@ -155,6 +155,7 @@
 						// echo $queryToGetCountOfPatient;
 						$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 						$totalPatientAvailable = $resultCountOfPatient->num_rows;
+						 if($totalPatientAvailable>0){
 					?>
 
 					<div class="clearfix attop">
@@ -218,7 +219,6 @@
 					</div>
 				</div>
 				<div class="row"  style="color:#fff">
-					<?php if($totalPatientAvailable>0){?>
 						<form method="post" action="../PHP/receptionistAreaAPIs/setApprovalByreceptionistForm.php">
 							<p id="removeOnceClickOnYes">
 							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
@@ -233,12 +233,19 @@
 						<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
 						<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
 						<input type="hidden" id="receptionistID" value="<?php echo $receptionistID; ?>"></input>
-						Doctor call <button href="#" class="btn btn-success" id="setSendNextPatient">PENDING...</button>
+						Doctor call <button href="#" class="btn btn-success" id="setSendNextPatient">PENDING...</button><br> <b style="color: orange;">OR</b><br> WAIT<a>
+						<select id="timeList">
+						  <option value="1">1</option>
+						  <option value="2">2</option>
+						  <option value="5">5</option>
+						  <option value="10">10</option>
+						  <option value="15">15</option>
+						  <option value="20">20</option>
+						  <option value="30">30</option>
+						  <option value="60">60</option>
+						</select></a> MIN
 						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
 						<br><br>
-					<?php }
-					else{ echo "<b style='color: red;'>No patients in your hospital!</b>" ;}
-					?>
 				</div>
 <!-- To Get Pending patients list -->
 				<div class="row"  style="color:#fff">
@@ -263,7 +270,7 @@
 
 					<div class="clearfix attop">
 						<div id="right-block" class="col-sm-12" >
-						Total <?php echo $totalPatientPending ;?> patient pending<br>
+						Total <?php echo $totalPatientPending ;?> patient pending to be checked and paid!<br>
 						<table id="hospital" >
 						  	<tr>
 							    <th style="font-weight: 20px; color:#fff;">Patient Name</th>
@@ -326,6 +333,11 @@
 						</div>
 					</div>
 				</div>
+
+
+			<?php }
+			else{ echo "<b style='color: red;'>Today No patients in your hospital!</b>" ;}
+			?>
 				<div class="row"  style="color:#fff">
 					HISTORY
 					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>

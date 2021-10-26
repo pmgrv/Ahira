@@ -143,6 +143,7 @@
 						// echo $queryToGetCountOfPatient;
 						$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 						$totalPatientAvailable = $resultCountOfPatient->num_rows;
+						 if($totalPatientAvailable>0){
 					?>
 
 					<div class="clearfix attop">
@@ -198,7 +199,6 @@
 					</div>
 				</div>
 				<div class="row"  style="color:#fff">
-					<?php if($totalPatientAvailable>0){?>
 						<form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php">
 							<p id="removeOnceClickOnYes">
 							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
@@ -229,9 +229,7 @@
 						<input type="hidden" id="doctorIDWait" value="<?php echo $doctorID; ?>"></input>
 						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
 						<br><br>
-					<?php }
-					else{ echo "<b style='color: red;'>No patients in your hospital!</b>" ;}
-					?>
+					
 				</div>
 <!-- To Get Pending patients list -->
 				<div class="row"  style="color:#fff">
@@ -296,6 +294,10 @@
 						</div>
 					</div>
 				</div>
+
+				<?php }
+					else{ echo "<b style='color: red;'>Today No patients in your hospital!</b>" ;}
+					?>
 				<div class="row"  style="color:#fff">
 					HISTORY
 					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>
@@ -437,7 +439,7 @@
 	    $(document).on('click','#submitDataConfirmration',function(){
 		  	// $('#removeOnceClickOnYes').hide();
 	        var countofApprovedPatient = $(this).data('countofpatientapprovedbydoctor');
-	        alert(<?php print_r($patientList) ;?>);
+	        // alert(<?php print_r($patientList) ;?>);
 		  	var json_data = {
 		    	"countofApprovedPatient":countofApprovedPatient
 		  	};
