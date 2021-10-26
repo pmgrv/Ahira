@@ -20,7 +20,7 @@ $queryToFindPatient = "SELECT * FROM `patientarea` WHERE patient_FirstName like 
 	$result = $mysqli->query($queryToFindPatient);
 
 //printf("Select returned %d rows.\n", $result->num_rows);
-	if($result->num_rows>=0){
+	if($result->num_rows>0){
 		$result = $mysqli->query("SELECT * FROM `hospitalarea`");
 		while($row = $result->fetch_assoc()){
 			$hospitalName = $row['hospitalName'];

@@ -105,7 +105,7 @@
 		  <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
 			<h4 class="modal-title">Registration</h4>
-			<h6>New User Registration</h6>
+			<h6>New Patient Registration</h6>
 		  </div>
 		  <div class="modal-body">
 			<form role="form" id="registerform">
@@ -204,6 +204,7 @@
 			    // alert(JSON.stringify(json_data));
 			  },
 			  success:function(data){
+			  	// alert(data['status']);
 			  	if(data['status']=='failure'){
 				  	$('#myModal').modal('show');
 				  	$('#phNo').val(data['data']+" Register with new number!");

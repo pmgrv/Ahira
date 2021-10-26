@@ -2,7 +2,7 @@
 <html>
   <head>    
     <meta charset="UTF-8">
-    <title>Health Is Wealth</title>
+    <title>Health Is Wealth - Receptionist</title>
     <meta name="description" content="">
  
     
