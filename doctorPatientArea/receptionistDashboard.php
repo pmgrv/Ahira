@@ -104,42 +104,54 @@
 		 	$url = $_SERVER['REQUEST_URI'];
 		$url_components = parse_url($url);
 		parse_str($url_components['query'],$params);
-		$searchdoctor = $params['searchdoctor'];
-		$getNextPatient = '';?>
+		$searchreceptionist = $params['searchreceptionist'];
+		$getNextPatient = '';
+		$hospitalID='';
+		$doctorFN = '';
+		?>
  <body>
 <div class="bg">
  	<div class="bg-color">
 	<div class="row"  style="color:#fff">
 		<?php		
-		$queryToGetDoctorDetails = "SELECT * FROM `doctorarea` WHERE doctor_FirstName like ('%$searchdoctor%') or  doctor_LastName like ('%$searchdoctor%') or  doctor_ContactNu like ('%$searchdoctor%')";
-		$result = $mysqli->query($queryToGetDoctorDetails);
+		$queryToGetreceptionistDetails = "SELECT * FROM `receptionistarea` WHERE receptionist_FirstName like ('%".$searchreceptionist."%') or  receptionist_LastName like ('%".$searchreceptionist."%') or  receptionist_ContactNu like ('%$searchreceptionist%')";
+		// print_r($queryToGetreceptionistDetails);
+		$result = $mysqli->query($queryToGetreceptionistDetails);
 		if($result->num_rows>0){
-			$result = $mysqli->query($queryToGetDoctorDetails);
+			$result = $mysqli->query($queryToGetreceptionistDetails);
 			while($row = $result->fetch_assoc()){
-				$firstName = $row['doctor_FirstName'];
-				$lastName = $row['doctor_LastName'];
-				echo '<br> Dr. '.$fullName = $firstName.' '.$lastName;
-				$doctorContactNumber = $row['doctor_ContactNu'];
-				$doctorID = $row['doctor_ID'];
-				$queryToGetDoctorHospital = "SELECT ha.hospitalName,ha.hospitalAddress
-				FROM ((`doctorhospital` AS dh inner join `hospitalarea` AS ha on ha.hospitalID=dh.hospital_ID ) inner join `doctorarea` as da on dh.doctor_ID=da.doctor_ID)
+				$firstName = $row['receptionist_FirstName'];
+				$lastName = $row['receptionist_LastName'];
+				$receptionist_Gender = $row['receptionist_Gender'];
+
+				if($receptionist_Gender=='male'){
+					echo '<br> Mr. '.$fullName = $firstName.' '.$lastName;
+				}
+				else{
+					echo '<br> Ms. '.$fullName = $firstName.' '.$lastName;	
+				}
+				$receptionistContactNumber = $row['receptionist_ContactNu'];
+				$receptionistID = $row['receptionist_ID'];
+				$queryToGetreceptionistHospital = "SELECT ha.hospitalID,ha.hospitalName,ha.hospitalAddress
+				FROM ((`receptionisthospital` AS dh inner join `hospitalarea` AS ha on ha.hospitalID=dh.hospital_ID ) inner join `receptionistarea` as da on dh.receptionist_ID=da.receptionist_ID)
 				where 
-				da.doctor_ContactNu='".$doctorContactNumber."' GROUP by ha.hospitalName";
-				//echo $queryToGetDoctorHospital;
-				$resultContactNo = $mysqli->query($queryToGetDoctorHospital);
+				da.receptionist_ContactNu='".$receptionistContactNumber."' GROUP by ha.hospitalName";
+				// echo $queryToGetreceptionistHospital;
+				$resultContactNo = $mysqli->query($queryToGetreceptionistHospital);
 				if($resultContactNo->num_rows>0){
-					$resultContactNo = $mysqli->query($queryToGetDoctorHospital);
+					$resultContactNo = $mysqli->query($queryToGetreceptionistHospital);
 					while($rowContact = $resultContactNo->fetch_assoc()){
 						echo '<br>'.$rowContact['hospitalName'];
 						echo '<br>'.$rowContact['hospitalAddress'];
+						$hospitalID=$rowContact['hospitalID'];
 					}
 				}
-				echo '<br>'.$searchdoctor;
+				echo '<br>'.$searchreceptionist;
 				?>
 <!-- To Get patients list to be checking-->
 				<div class="row"  style="color:#fff">
 					<?php 
-						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
+						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa, `doctorarea` as da WHERE ph.hospitalID='".$hospitalID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID and da.doctor_ID=ph.doctor_ID ORDER BY allowedTime ASC";
 						// echo $queryToGetCountOfPatient;
 						$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 						$totalPatientAvailable = $resultCountOfPatient->num_rows;
@@ -154,6 +166,8 @@
 							    <th style="font-weight: 20px; color:#fff;">Age</th>		
 							    <th style="font-weight: 20px; color:#fff;">Address</th>		
 							    <th style="font-weight: 20px; color:#fff;">Blood Group</th>
+							    <th style="font-weight: 20px; color:#fff;">Dr. Name</th>
+							    <th style="font-weight: 20px; color:#fff;">Token</th>
 						  	</tr>
 
 								<?php
@@ -162,6 +176,10 @@
 								$patientList = [];
 								$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 								while($rowCountOfPatient = $resultCountOfPatient->fetch_assoc()){
+									$reason =  $rowCountOfPatient['reason'];
+									$doctor_FirstName =  $rowCountOfPatient['doctor_FirstName'];
+									$doctor_LastName =  $rowCountOfPatient['doctor_LastName'];
+									$doctorFN =  $rowCountOfPatient['doctor_FirstName'].' '.$doctor_LastName;
 									$patientFN =  $rowCountOfPatient['patient_FirstName'];
 									$patientLN =  $rowCountOfPatient['patient_LastName'];
 									$patientDOB =  $rowCountOfPatient['patient_DOB'];
@@ -188,6 +206,8 @@
 									    <td><?php echo $ageOfpatient;?></td>
 									    <td><?php echo $patientAdd; ?></td>
 									    <td>O+</td>
+									    <td><?php echo $doctorFN ; ?></td>
+									    <td><?php echo $token_no  ; ?></td>
 									</tr>
 									<?php
 								} // End INSIDE WHILE
@@ -199,10 +219,10 @@
 				</div>
 				<div class="row"  style="color:#fff">
 					<?php if($totalPatientAvailable>0){?>
-						<form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php">
+						<form method="post" action="../PHP/receptionistAreaAPIs/setApprovalByreceptionistForm.php">
 							<p id="removeOnceClickOnYes">
 							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
-							Want to allow to check-up <button href="#" class="btn btn-success" id="submitDataConfirmration" 
+								<button href="#" class="btn btn-success" id="submitDataConfirmration" 
 								data-approvedpatientlist="<?=$totalPatientAvailable?>"
 								type="submit"
 								>ALL <?php echo $totalPatientAvailable ;
@@ -212,21 +232,8 @@
 						Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a><br><br>
 						<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
 						<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
-						<input type="hidden" id="doctorID" value="<?php echo $doctorID; ?>"></input>
-						Let get in <button href="#" class="btn btn-success" id="setSendNextPatient">YES</button><br> <b style="color: orange;">OR</b><br> WAIT<a>
-						<select id="timeList">
-						  <option value="1">1</option>
-						  <option value="2">2</option>
-						  <option value="5">5</option>
-						  <option value="10">10</option>
-						  <option value="15">15</option>
-						  <option value="20">20</option>
-						  <option value="30">30</option>
-						  <option value="60">60</option>
-						</select></a> MIN
-						<input type="hidden" id="nextPatientIDWait" value="<?php echo $getNextPatientID; ?>"></input>	
-						<input type="hidden" id="nextPatientTokenWait" value="<?php echo $tokenNoNext; ?>"></input>
-						<input type="hidden" id="doctorIDWait" value="<?php echo $doctorID; ?>"></input>
+						<input type="hidden" id="receptionistID" value="<?php echo $receptionistID; ?>"></input>
+						Doctor call <button href="#" class="btn btn-success" id="setSendNextPatient">PENDING...</button>
 						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
 						<br><br>
 					<?php }
@@ -236,7 +243,19 @@
 <!-- To Get Pending patients list -->
 				<div class="row"  style="color:#fff">
 					<?php 
-						$queryToGetPendingPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=4 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
+						$queryToGetPendingPatient = "SELECT * 
+									FROM 
+									`patienthospital` as ph, 
+									`patientarea` as pa, 
+									`doctorarea` as da, 
+									`doctorhospital` as dh
+									WHERE 
+									ph.hospitalID='".$hospitalID."' 
+									and ph.book_flag=4 
+									and pa.patient_ID=ph.patient_ID 
+									and da.doctor_ID=ph.doctor_ID
+									and dh.doctor_ID=ph.doctor_ID
+									and dh.hospital_ID=ph.hospitalID ORDER BY allowedTime ASC";
 						// echo $queryToGetPendingPatient;
 						$resultCountOfPatientPending = $mysqli->query($queryToGetPendingPatient);
 						$totalPatientPending = $resultCountOfPatientPending->num_rows;
@@ -250,7 +269,7 @@
 							    <th style="font-weight: 20px; color:#fff;">Patient Name</th>
 							    <th style="font-weight: 20px; color:#fff;">Age</th>		
 							    <th style="font-weight: 20px; color:#fff;">Contact Number</th>
-							    <th style="font-weight: 20px; color:#fff;">Pending</th>		
+							    <th style="font-weight: 20px; color:#fff;">Status</th>		
 						  	</tr>
 
 								<?php
@@ -259,6 +278,8 @@
 								$patientList = [];
 								$resultCountOfPatientPending = $mysqli->query($queryToGetPendingPatient);
 								while($rowCountOfPatientPending = $resultCountOfPatientPending->fetch_assoc()){
+									$doctorIDSend = $rowCountOfPatientPending['doctor_ID'];
+									$checkupfees =  $rowCountOfPatientPending['checkupfees'];
 									$patientFN =  $rowCountOfPatientPending['patient_FirstName'];
 									$patientLN =  $rowCountOfPatientPending['patient_LastName'];
 									$patientDOB =  $rowCountOfPatientPending['patient_DOB'];
@@ -266,6 +287,7 @@
 									$patientAdd =  $rowCountOfPatientPending['patient_At'];
 									$token_no =  $rowCountOfPatientPending['token_no'];
 									$getNextPatientID =  $rowCountOfPatientPending['patient_ID'];
+									echo $getNextPatientIDsend =  $rowCountOfPatientPending['patient_ID'];
 									$getReason =  $rowCountOfPatientPending['reason'];
 									// $patientList[]=$token_no;
 									array_push($patientList, $token_no);
@@ -286,7 +308,15 @@
 									    <td><?php echo $patientFullName; ?></td>
 									    <td><?php echo $ageOfpatient;?></td>
 									    <td><a href="tel:<?php echo $patient_ContactNu; ?>"><?php echo $patient_ContactNu; ?></a></td>
-									    <td><?php echo $getReason; ?></td>
+									    <td><b ><?php echo $getReason.' '; ?></b>
+									    <input type="hidden" id="doctorIDSend" value="<?php echo $doctorIDSend; ?>"></input>	
+									    <input type="hidden" id="PatientIDSend" value="<?php echo $getNextPatientIDsend; ?>"></input>						
+										<input type="hidden" id="PatientToken" value="<?php echo $tokenNoNext; ?>"></input>
+										<input type="hidden" id="receptionistID" value="<?php echo $receptionistID; ?>"></input>
+									    <input type="hidden" id="checkupfeesDefault" value="<?php echo $checkupfees;?>"></input>
+									    <button href="#" class="btn btn-success" id="setAmountOrReason"
+										
+									    > PAY</button><b id="testingReplace"></b><b id="submitAmount"></b></td>
 									</tr>
 									<?php
 								} // End INSIDE WHILE
@@ -359,20 +389,20 @@
 			  </div> <br/>	
 		      <div class="form-group">
 				<label>DOB:</label>
-				<input type="date" class="form-control" placeholder = "@28-12-1991" id="dob_doctor" required="required">
+				<input type="date" class="form-control" placeholder = "@28-12-1991" id="dob_receptionist" required="required">
 			  </div> <br/>	
 		      <div class="form-group">
 				<label>Address:</label>
-				<input type="text" class="form-control" placeholder = "@Dewalgaon" id="add_at_doctor" required="required">
+				<input type="text" class="form-control" placeholder = "@Dewalgaon" id="add_at_receptionist" required="required">
 			  </div> <br/>  	
 		      <div class="form-group">
 				<label>Pin Code:</label>
-				<input type="text" class="form-control" placeholder = "@441901" id="add_pin_code_doctor" required="required">
+				<input type="text" class="form-control" placeholder = "@441901" id="add_pin_code_receptionist" required="required">
 			  </div> <br/>   
 				<label>Gender:
 		      <div class="form-group">
-				<input type="radio" name="gender_doctor" id="gender_doctor" value="male">Male
-				<input type="radio" name="gender_doctor" id="gender_doctor" value="female">Female
+				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="male">Male
+				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="female">Female
 			  </div> 
 			  </label> <br/>  
 			  <a href="#" class="btn btn-success" id="submitData">Submit</a>
@@ -397,21 +427,90 @@
 <script src="../assets/js/script.js"></script>
 <script src="../assets/js/jquery.placeholder.js"></script>
 <script type="text/javascript">
-	//Update Time by Doctor when patient is in the Hospital Queue 
+
+$(document).ready(function(){
+
+	//To set Fees input
+	$(document).on("click",'#setAmountOrReason',function(){
+
+
+	    // var doctorcheckupfees = $(this).data('doctorcheckupfees');
+	    // alert(doctorcheckupfees);
+		var input = document.createElement("input");
+		input.setAttribute('type', 'text');
+		input.setAttribute('id', 'getAmount');
+		input.setAttribute('name', 'getAmount');
+		input.setAttribute('value',$("#checkupfeesDefault").val());
+		var parent = document.getElementById("testingReplace");
+		parent.appendChild(input);
+		$('#setAmountOrReason').attr("disabled","disabled");
+		$('#setAmountOrReason').remove();
+
+
+		var element = document.createElement("button");
+	    element.appendChild(document.createTextNode("PAY NOW"));
+		element.setAttribute('class', 'btn btn-success');
+		element.setAttribute('id', 'setAmount');
+	    var page = document.getElementById("submitAmount");
+	    page.appendChild(element);
+
+	    });
+	//To Send Fees
+	$(document).on("click",'#setAmount',function(){
+	    var doctorIDSend = $("#doctorIDSend").val();
+	    var getAmount = $("#getAmount").val();
+        var PatientIDSend = $("#PatientIDSend").val();
+        var receptionistIDChangedStatus = $("#receptionistID").val();
+        var PatientToken = $("#PatientToken").val();
+	  	var json_data = {
+	    	"getAmount":getAmount,
+	    	"PatientIDSend":PatientIDSend,
+	    	"doctorIDSend":doctorIDSend,
+	    	"PatientToken":PatientToken,
+	    	"receptionistID":receptionistIDChangedStatus
+	  	};
+		$.ajax({
+		  type:"POST",
+		  url:"../PHP/receptionistAreaAPIs/collectingFeesByreceptionist.php",
+		  data: {"DATA": JSON.stringify(json_data)},
+		  beforeSend:function(data){
+		  	alert(JSON.stringify(json_data));
+		  	alert("Sending your data!!");
+		  },
+		  success:function(data){
+		  	// alert(data);
+		  	alert("Paid Successfully");
+			setTimeout(() => { location.reload(); }, 2000);
+		    // window.location.replace("index.php");
+		  	// alert(JSON.stringify(json_data));
+		  },
+		  error:function(err){
+		    alert(JSON.stringify(err));
+		  }
+		});
+    });
+
+	});
+
+	
+</script>
+
+<script type="text/javascript">
+	//Update Time by receptionist when patient is in the Hospital Queue 
 	$(document).on("click",'#waitingTime',function(){
 	        var timeList = $("#timeList").val();
 	        var nextPatientID = $("#nextPatientID").val();
-	        var doctorIDChangedStatus = $("#doctorID").val();
+	        var receptionistIDChangedStatus = $("#receptionistID").val();
 	        var nextPatientToken = $("#nextPatientToken").val();
 		  	var json_data = {
-		    	"waitingTimeSetByDoctor":timeList,
+		    	"waitingTimeSetByreceptionist":timeList,
 		    	"nextPatientID":nextPatientID,
 		    	"nextPatientToken":nextPatientToken,
-		    	"doctorID":doctorIDChangedStatus
+		    	"receptionistID":receptionistIDChangedStatus
 		  	};
 			$.ajax({
 			  type:"POST",
-			  url:"../PHP/doctorAreaAPIs/setWaitingTimeByDoctor.php",
+			  url:"../PHP/receptionistAreaAPIs/setWaitingTimeByreceptionist.php",
 			  data: {"DATA": JSON.stringify(json_data)},
 			  beforeSend:function(data){
 			  	alert(JSON.stringify(json_data));
@@ -433,17 +532,17 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 
-		//Sending book_flag Approval From Doctor to patient directly
+		//Sending book_flag Approval From receptionist to patient directly
 	    $(document).on('click','#submitDataConfirmration',function(){
 		  	// $('#removeOnceClickOnYes').hide();
-	        var countofApprovedPatient = $(this).data('countofpatientapprovedbydoctor');
+	        var countofApprovedPatient = $(this).data('countofpatientapprovedbyreceptionist');
 	        alert(<?php print_r($patientList) ;?>);
 		  	var json_data = {
 		    	"countofApprovedPatient":countofApprovedPatient
 		  	};
 			$.ajax({
 			  type:"POST",
-			  url:"../PHP/setApprovalByDoctor.php",
+			  url:"../PHP/setApprovalByreceptionist.php",
 			  data: {"DATA": JSON.stringify(json_data)},
 			  beforeSend:function(data){
 			  	/*alert(JSON.stringify(json_data));*/
@@ -466,10 +565,10 @@
 		    "fullname":$("#fullname").val(),
 		    "phoneNo":$("#phNo").val(),
 		    "aadhar":$("#aadhar").val(),
-		    "dob_doctor":$("#dob_doctor").val(),
-		    "add_pin_code_doctor":$("#add_pin_code_doctor").val(),
-		    "gender_doctor":$("input[id=gender_doctor]:checked").val(),
-		    "add_at_doctor":$("#add_at_doctor").val()
+		    "dob_receptionist":$("#dob_receptionist").val(),
+		    "add_pin_code_receptionist":$("#add_pin_code_receptionist").val(),
+		    "gender_receptionist":$("input[id=gender_receptionist]:checked").val(),
+		    "add_at_receptionist":$("#add_at_receptionist").val()
 		  };
 		  $.ajax({
 		  type:"POST",
@@ -492,11 +591,11 @@
 		
 		$(document).on('click','#searchHospitalNow',function(){
 		  var json_data = {
-		    "searchdoctorText":$("#searchdoctorText").val() 
+		    "searchreceptionistText":$("#searchreceptionistText").val() 
 		  };
 		  $.ajax({
 		  type:"POST",
-		  url:"../PHP/doctorAreaAPIs/getDoctorDetails.php",
+		  url:"../PHP/receptionistAreaAPIs/getreceptionistDetails.php",
 		  data: {"DATA": JSON.stringify(json_data)},
 		  beforeSend:function(data){
 		    // alert(JSON.stringify(json_data));
@@ -511,7 +610,7 @@
 				
 		    }else{
 		    	alert("Checking hospital for you! ");
-			    window.location.replace("searched_result.php?searchdoctor="+data['data']);
+			    window.location.replace("searched_result.php?searchreceptionist="+data['data']);
 		    }
 
 		  },
@@ -527,24 +626,25 @@
 	//Sending book_flag pending when patient is in the Hospital Queue 
 	$(document).on("click",'#setSendNextPatient',function(){
 	        var nextPatientID = $("#nextPatientID").val();
-	        var doctorIDChangedStatus = $("#doctorID").val();
+	        var receptionistIDChangedStatus = $("#receptionistID").val();
 	        var nextPatientToken = $("#nextPatientToken").val();
+	        // alert(nextPatientID);
 		  	var json_data = {
 		    	"nextPatientID":nextPatientID,
 		    	"nextPatientToken":nextPatientToken,
-		    	"doctorID":doctorIDChangedStatus
+		    	"receptionistID":receptionistIDChangedStatus
 		  	};
 			$.ajax({
 			  type:"POST",
-			  url:"../PHP/doctorAreaAPIs/setPendingByDoctor.php",
+			  url:"../PHP/receptionistAreaAPIs/setPendingByreceptionist.php",
 			  data: {"DATA": JSON.stringify(json_data)},
 			  beforeSend:function(data){
 			  	alert(JSON.stringify(json_data));
-			  	alert("Getting patient inside!!");
+			  	alert("Sending your data!!");
 			  },
 			  success:function(data){
-			  	alert(data['data']);
-			  	alert("Patient Sent successfully!!");
+			  	alert(data);
+			  	alert("Registration successful!!");
 			    // window.location.replace("index.php");
 			  	// alert(JSON.stringify(json_data));
 			  },

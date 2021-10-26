@@ -22,13 +22,13 @@ $result = $mysqli->query($queryGetbookedHospital);
 // print_r($result->num_rows);
 if($result->num_rows>0){
 	$udateBookFlagToCancel = "UPDATE `patienthospital` 
-							  	SET 	book_flag  = '2',
+							  	SET 	book_flag  = '0',
 										reason     = 'Cancelled booking'
 								WHERE 	hospitalID='".$hospitalidtosend."'
 										and patient_ID='".$patientidtosend."' 
 										and book_flag='1'	
 								";
-	//book_flag = 1 - Booked, 2-Cancelled Book
+	//book_flag = 1 - Booked, 0-Cancelled Book
 	$res = $mysqli->query($udateBookFlagToCancel);
 	if($result->num_rows>0){
 		// SELECT * FROM `patienthospital` WHERe hospitalID=1 and book_flag=1 and token_no > 2
@@ -63,7 +63,7 @@ if($result->num_rows>0){
 										and patient_ID='".$patient_IDForCondition."' 
 										and doctor_ID='".$doctor_IDForCondition."' 
 								";
-												//book_flag = 1 - Booked, 2-Cancelled Book
+												//book_flag = 1 - Booked, 0-Cancelled Book
 				$res = $mysqli->query($udatePatientsTimeAndToken);
 			}
 			echo deliver_response("success","Registration Successful","{$udatePatientsTimeAndToken}");

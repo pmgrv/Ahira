@@ -38,6 +38,7 @@ if($result->num_rows<=0){
 												`hospitalID` = '".$hospitalName."',
 												`patient_ID` = '".$patientID."',
 												`book_flag` = '1',
+												`reason` = 'In QUEUE',
 												`token_no` = '".$token_no."',
 												`doctor_ID`='".$doctor_ID."',
 												`allowedTime`   = '".$allowedTime."'";

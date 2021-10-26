@@ -30,13 +30,13 @@ and token_no='".$nextPatientToken."'
 	if($result->num_rows>0){
 		$result = $mysqli->query($queryToGetNextPatient);
 			$statusupdateNow = "UPDATE `patienthospital`
-			SET `book_flag` = '4' 
+			SET `book_flag` = '4',
+			reason='To be Paid' 
 			WHERE 
 			doctor_ID='".$doctorID."' 
 			and book_flag=1 
 			and patient_ID='".$nextPatientID."' 
 			and token_no='".$nextPatientToken."' 
-			and reason='Fees Submit' 
 			";
 		$mysqli->query($statusupdateNow);
 		echo deliver_response("success","Subscribed Successfully","{$statusupdateNow}");
