@@ -16,26 +16,26 @@ if(empty($rowData)){
 }
 
 // var_dump($rowData);
-$hospitalName = $rowData->hospitalName;
+$hospitalid = $rowData->hospitalid;
 $patientID = $rowData->patientID;
 $allowedTime = $rowData->totalestimatedtime;
 $token_no = $rowData->token_no;
 $doctor_ID = $rowData->doctor_ID;
 // $totalestimatedtime = $rowData->totalestimatedtime;
 $queryGets = "SELECT ha.hospitalID, pa.patient_ID FROM `patientarea` as pa, `hospitalarea` as ha 
-WHERE pa.patient_ID like ('$patientID') and  ha.hospitalName like ('$hospitalName') ";
+WHERE pa.patient_ID like ('$patientID') and  ha.hospitalID like ('$hospitalid') ";
 // print_r($queryGets);
 $result = $mysqli->query($queryGets);
 while($row = $result->fetch_assoc()){
 	$hospitalID = $row['hospitalID'];
 	$patient_ID = $row['patient_ID'];
 }
-if($result->num_rows<=0){
-	if(!empty($hospitalName)&&!empty($patientID)&&!empty($allowedTime))
+if($result->num_rows>0){
+	if(!empty($hospitalid)&&!empty($patientID)&&!empty($allowedTime))
 	{
 		
 		$sqlInsert = "INSERT INTO `patienthospital` SET 
-												`hospitalID` = '".$hospitalName."',
+												`hospitalID` = '".$hospitalid."',
 												`patient_ID` = '".$patientID."',
 												`book_flag` = '1',
 												`reason` = 'In QUEUE',
@@ -45,10 +45,10 @@ if($result->num_rows<=0){
 		// print_r($sqlInsert);
 		$res = $mysqli->query($sqlInsert);
 		if($res){
-			echo deliver_response("success","Registration Successful","{$sqlInsert}");
+			echo deliver_response("success","Registration Successful","{$queryGets}");
 		}
 		else{
-			echo deliver_response("failure","Oops! Something went wrong, Please try again later","{$queryGets}");
+			echo deliver_response("failure","Oops! Something went wrong, Please try again later","{$sqlInsert}");
 		}
 	}
 	else

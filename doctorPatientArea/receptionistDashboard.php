@@ -120,6 +120,7 @@
 		if($result->num_rows>0){
 			$result = $mysqli->query($queryToGetreceptionistDetails);
 			while($row = $result->fetch_assoc()){
+				$recID = $row['receptionist_ID'];
 				$firstName = $row['receptionist_FirstName'];
 				$lastName = $row['receptionist_LastName'];
 				$receptionist_Gender = $row['receptionist_Gender'];
@@ -141,7 +142,7 @@
 				if($resultContactNo->num_rows>0){
 					$resultContactNo = $mysqli->query($queryToGetreceptionistHospital);
 					while($rowContact = $resultContactNo->fetch_assoc()){
-						echo '<br>'.$rowContact['hospitalName'];
+						echo '<br>'.$hospitalName = $rowContact['hospitalName'];
 						echo '<br>'.$rowContact['hospitalAddress'];
 						$hospitalID=$rowContact['hospitalID'];
 					}
@@ -349,10 +350,27 @@
 
 			}//Outsider WHILE Loop
 		}//Outsider IF Loop
-
-		 ?>
+	?>
 	</div>
-	<a href="index.php" class="btn btn-success" >HOME</a><br>
+	<div id="showDoctorToBeSelected"></div>
+	<a href="index.php" class="btn btn-success" >HOME</a>
+	<button href="" id="patientReg" class="btn btn-success">Register Patient
+	<input type='hidden' id='hospitalIDTogetPatientDetails' value='<?php echo $hospitalID;?>'>
+	</button><br>
+	<div id="doctorlList"></div>
+	<div id="patientRegArea">
+		<form class="newsletter-signup" role="form">
+		  <div class="input-group">
+			<input type='hidden' id='hospitalIDToGetTotalPatient' value='<?php echo $hospitalID;?>'>
+			<input type='hidden' id='receptionistID' value='<?php echo $recID;?>'>
+			<input style="color:#000" type="text" placeholder="@9403148108/@patient_ID" class="form-control" id="searchPatientFromRec" required>
+			<span class="input-group-btn">
+			  <a href="#" id="searchHospitalNowFromReception" class="btn btn-default btn-sand">CHECK</a>
+			</span>
+		  </div><!-- /input-group -->
+		</form>
+		<div id="patientdetailsTest"></div>
+	</div>
 	<div id="right-block" class="col-sm-12">                  
 		<p class="followus"></p>
 		<ul class="social-icon" style="margin-top: -42px;">
@@ -376,48 +394,41 @@
 	}
 ?>
 <!--************Registratin Start*************-->
-	<div id="myModal" class="modal fade" role="dialog">
+	<div id="hospitalBooking" class="modal fade" role="dialog">
 	  <div class="modal-dialog"> 
 		<!-- Modal content-->
 		<div class="modal-content">
 		  <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
-			<h4 class="modal-title">Registration</h4>
-			<h6>New User Registration</h6>
+			<h4 class="modal-title">BOOKING BY RECEPTIONIST</h4>
 		  </div>
 		  <div class="modal-body">
 			<form role="form" id="registerform">
 			  <div class="form-group">
-				<label>Full Name:</label>
-				<input type="text" placeholder='@Pravinkumar Raut (No middle Name please)' class="form-control" id="fullname" required="required">
-			  </div><br/>
+				<span>Full Name: <b id="fullnameBookByRec"></b></span>
+			  </div>
 			  <div class="form-group" >
-				<label>Contact No.:</label>
-				<input type="text" class="form-control" placeholder="@8793236648" id="phNo" required="required">
-			  </div><br/> 
+				<span>Contact No.: <b id="contactBookByRec"></b></span>
+			  </div>
 		      <div class="form-group">
-				<label>Aadhar Card Number:</label>
-				<input type="text" class="form-control" placeholder = "@410128972860" id="aadhar">
-			  </div> <br/>	
+				<span>Age: <b id="ageBookByRec"></b></span>
+			  </div>	
 		      <div class="form-group">
-				<label>DOB:</label>
-				<input type="date" class="form-control" placeholder = "@28-12-1991" id="dob_receptionist" required="required">
-			  </div> <br/>	
-		      <div class="form-group">
-				<label>Address:</label>
-				<input type="text" class="form-control" placeholder = "@Dewalgaon" id="add_at_receptionist" required="required">
-			  </div> <br/>  	
-		      <div class="form-group">
-				<label>Pin Code:</label>
-				<input type="text" class="form-control" placeholder = "@441901" id="add_pin_code_receptionist" required="required">
-			  </div> <br/>   
-				<label>Gender:
-		      <div class="form-group">
-				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="male">Male
-				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="female">Female
+				<span>Address: <b id="addressBookByRec"></b></span>
 			  </div> 
-			  </label> <br/>  
-			  <a href="#" class="btn btn-success" id="submitData">Submit</a>
+			  <div>
+				<span>Gender: <b id="genderBookByRec"></b></span><br><br>
+				</div>
+			  <div style="height: 100%; border: 2px solid #979797;";>
+				<span>Selected Doctor: <b id="selectedDocBookByRec"></b></span><br>
+				<span>Token: <b id="tokenBookByRec"></b></span><br>
+				<span>Exp Time: <b id="expectedTimeBookByRec"></b></span><br>
+			  </div>
+			  <a href="#" class="btn btn-success" id="submitDataBookToAcknowledgeByRec">Accept</a><br>
+			  <span id="hospitalRequest"></span><br>
+			  <span id="hospitalRequestedTime">2. If you come after <b id="estimatedTimeToArrive"></b></span>
+			  <span id="hospitalLate"></span>
+			  
 			</form>
 		  </div>
 		  <div class="modal-footer">
@@ -428,8 +439,6 @@
 	  </div>
 	</div>
 <!--************Registratin Ends*******************-->
-    
-
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="../assets/js/jquery.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -548,7 +557,6 @@ $(document).ready(function(){
 	    $(document).on('click','#submitDataConfirmration',function(){
 		  	// $('#removeOnceClickOnYes').hide();
 	        var countofApprovedPatient = $(this).data('countofpatientapprovedbyreceptionist');
-	        alert(<?php print_r($patientList) ;?>);
 		  	var json_data = {
 		    	"countofApprovedPatient":countofApprovedPatient
 		  	};
@@ -600,37 +608,6 @@ $(document).ready(function(){
 		  }
 		  });
 		});
-		
-		$(document).on('click','#searchHospitalNow',function(){
-		  var json_data = {
-		    "searchreceptionistText":$("#searchreceptionistText").val() 
-		  };
-		  $.ajax({
-		  type:"POST",
-		  url:"../PHP/receptionistAreaAPIs/getreceptionistDetails.php",
-		  data: {"DATA": JSON.stringify(json_data)},
-		  beforeSend:function(data){
-		    // alert(JSON.stringify(json_data));
-		  },
-		  success:function(data){
-		  	if(data['status']=='failure'){
-			  	$('#myModal').modal('show');
-			  	$('#phNo').val(data['data']+" Register with new number!");
-			  	$('#phNo').css('color','#f7c304');
-			  	$('#phNo').css('font-weight','bold');
-			  	$('#phNo').attr("disabled","disabled");
-				
-		    }else{
-		    	alert("Checking hospital for you! ");
-			    window.location.replace("searched_result.php?searchreceptionist="+data['data']);
-		    }
-
-		  },
-		  error:function(err){
-		    //alert(JSON.stringify(err));
-		  }
-		  });
-		});
 	});
 </script>
 
@@ -666,6 +643,68 @@ $(document).ready(function(){
 			});
 	    });
 </script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+			$("#patientRegArea").hide();
+	//Patient registration by Receptionist
+	$(document).on("click",'#patientReg',function(){
+			$("#patientRegArea").show();
+			var hospitalidtosend = $("#hospitalIDTogetPatientDetails").val();
+/*To get list of Doctors*/
+			var json_data = {
+			    "hospitalidtosend":hospitalidtosend
+			  };
+			  $.ajax({
+			  type:"POST",
+			  url:"../PHP/getHospitalDetails.php",
+			  data: {"DATA": JSON.stringify(json_data)},
+			  beforeSend:function(data){
+			  	// alert(JSON.stringify(json_data));
+			  	//alert("Sending your data!!");
+			  },
+			  success:function(data){
+			  	$('#doctorlList').html(data);
+			  	
+				setTimeout(() => { alert("Make sure you have selected correct doctor!"); }, 2000);
+			    // window.location.replace("index.php");
+			  	// alert(JSON.stringify(json_data));
+			  },
+			  error:function(err){
+			    alert(JSON.stringify(err));
+			  }
+			  });
+/*End to Get List of Doctors*/
+	    });
+});
+</script>
+<script type="text/javascript">
+	$(document).on('click','#searchHospitalNowFromReception',function(){
+		if($("#searchPatientFromRec").val()!=''){
+			var json_data = {
+			"searchPatientText":$("#searchPatientFromRec").val(),
+			"hospitalIDToGetTotalPatient":$("#hospitalIDToGetTotalPatient").val(),
+			"receptionistID":$("#receptionistID").val(),
+			"selectedDoctorID":$("input[name=doctorName]:checked").val()
+			};
+			$.ajax({
+				type:"POST",
+				url:"../PHP/patientReceptionist/search_token_availibility.php",
+				data: {"DATA": JSON.stringify(json_data)},
+			beforeSend:function(data){
+				//alert(JSON.stringify(json_data));
+			},
+			success:function(data){
+				$('#patientdetailsTest').html(data);
+			},
+			error:function(err){
+				alert(JSON.stringify(err));
+			}
+			});
+		}
+		else{alert("Please enter a value");}
+	});
+</script>
 <script>
   $("#count-down").TimeCircles(
    {   
@@ -681,8 +720,67 @@ $(document).ready(function(){
         }
 	   }
 	);
-
 </script>
-    
-  </body>
+<script type="text/javascript">
+	$(document).on('click','#registerFromReceptionist',function(){
+        var hospitalnametosend = $(this).data('hospitalnametosend');
+        var hospitalidtosend = $(this).data('hospitalidtosend');
+        var patientidtosend = $(this).data('patientidtosend');
+        var doctoridtosend = $(this).data('doctoridtosend');
+        var receptionistID = $(this).data('receptionistID');
+        var totalpatienttosend = $(this).data('totalpatienttosend');
+        var totalestimatedtime = $(this).data('totalestimatedtime');
+        var patientnametosend = $(this).data('patientnametosend');
+        var patientagetosend = $(this).data('patientagetosend');
+        var patientcontacttosend = $(this).data('patientcontacttosend');
+        var patientaddresstosend = $(this).data('patientaddresstosend');
+        var patientgendertosend = $(this).data('patientgendertosend');
+        var doctornametosend = $(this).data('doctornametosend');
+        $('#fullnameBookByRec').html(patientnametosend);
+        $('#contactBookByRec').html(patientcontacttosend);
+        $('#ageBookByRec').html(patientagetosend);
+        $('#addressBookByRec').html(patientaddresstosend);
+        $('#genderBookByRec').html(patientgendertosend);
+        $('#estimatedTimeToArrive').html(totalestimatedtime);
+        $('#selectedDocBookByRec').html(doctornametosend);
+        $('#tokenBookByRec').html(totalpatienttosend);
+        $('#expectedTimeBookByRec').html(totalestimatedtime);
+
+		$("#hospitalRequest").text("1. *Please bring old examination file, if you have any! ");
+		$("#hospitalRequestedTime").show();
+		$('#hospitalLate').text("Then time may reframe and will let you know.")
+	  	$('#hospitalRequest').css('color','#ff0000');
+	  	$('#hospitalRequestedTime').css('color','#ff0000');
+	  	$('#hospitalLate').css('color','#ff0000');
+	  	$(document).on('click','#submitDataBookToAcknowledgeByRec',function(){
+			var json_data = {
+				"hospitalid":hospitalidtosend,
+				"patientID":patientidtosend,
+				"totalestimatedtime":totalestimatedtime,
+				"token_no":totalpatienttosend,
+				"doctor_ID":doctoridtosend
+			};
+			$.ajax({
+			type:"POST",
+			url:"../PHP/getPatientHospital.php",
+			data: {"DATA": JSON.stringify(json_data)},
+			beforeSend:function(data){
+				alert(JSON.stringify(json_data));
+				//alert("Sending your data!!");
+			},
+			success:function(data){
+				setTimeout(() => { alert("Your slot Booked Succesfully!!"+data['data']); }, 200);
+				$('#hospitalBooking').modal('hide');
+				setTimeout(() => { location.reload(); }, 2000);
+				// window.location.replace("index.php");
+				// alert(JSON.stringify(json_data));
+			},
+			error:function(err){
+			alert(JSON.stringify(err));
+			}
+			});
+		});
+	});
+</script>
+</body>
 </html>

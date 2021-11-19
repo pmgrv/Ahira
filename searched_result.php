@@ -138,8 +138,8 @@ if($resultPatient->num_rows>0){
 
 /*$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '$patient_ID' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.allowedTime >CURRENT_TIMESTAMP() 
 GROUP BY ph.hospitalID";//Actual Query*/
-$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient,ha.status FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '".$patient_ID."' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.book_flag='1' GROUP BY ph.hospitalID";//Temporary Query
- // echo $fetchAllBookAbleHospital;
+$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient,ha.status FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '".$patient_ID."' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.book_flag='1' GROUP BY ph.hospitalID";//Temporary Query ph.book_flag='1' / ha.status='1'
+//echo $fetchAllBookAbleHospital;
 $result = $mysqli->query($fetchAllBookAbleHospital);
 if($result->num_rows>0){
 	$result = $mysqli->query($fetchAllBookAbleHospital);
@@ -587,7 +587,7 @@ $fullName = $patientName .' '. $patient_LastName;
 			 //Sending values to do finalization of Booking Slot
 		    $(document).on('click','#submitDataBookToAcknowledge',function(){
 			  var json_data = {
-			    "hospitalName":hospitalidtosend,
+			    "hospitalid":hospitalidtosend,
 			    "patientID":patientidtosend,
 			    "token_no":totalpatienttosend,
 			    "doctor_ID":$("input[name=doctorName]:checked").val(),
@@ -602,10 +602,10 @@ $fullName = $patientName .' '. $patient_LastName;
 			  	//alert("Sending your data!!");
 			  },
 			  success:function(data){
-			  	
-				setTimeout(() => { alert("Your slot Booked Succesfully!!"); }, 200);
+			  	alert(data['data']);
+				/*setTimeout(() => { alert("Your slot Booked Succesfully!!"); }, 200);
 		 		$('#hospitalBooking').modal('hide');
-				setTimeout(() => { location.reload(); }, 2000);
+				setTimeout(() => { location.reload(); }, 2000);*/
 			   // window.location.replace("index.php");
 			  	// alert(JSON.stringify(json_data));
 			  },

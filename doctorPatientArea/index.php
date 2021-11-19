@@ -201,10 +201,10 @@
 		  url:"../PHP/receptionistAreaAPIs/getreceptionistDetails.php",
 		  data: {"DATA": JSON.stringify(json_data)},
 		  beforeSend:function(data){
-		    alert(JSON.stringify(json_data));
+		    //alert(JSON.stringify(json_data));
 		  },
 		  success:function(data){
-		  	alert(data['data']);
+		  	//alert(data['data']);
 		  	if(data['status']=='failure'){
 			  	$('#myModal').modal('show');
 			  	$('#phNo').val(data['data']+" Register with new number!");
