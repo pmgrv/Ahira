@@ -12,43 +12,28 @@ if(empty($rowData)){
 $rowData = json_decode($HTTP_RAW_POST_DATA);
 }
 
-$doctorID = $rowData->doctorID;
-$doctorInterest = $rowData->doctorInterest;
+$countofApprovedPatient = $rowData->countofApprovedPatient;
 
-if(!empty($doctorID) && !empty($doctorInterest))
+if(!empty($countofApprovedPatient))
 {
 $queryToFindDoctor = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
 	$result = $mysqli->query($queryToFindDoctor);
 
 //printf("Select returned %d rows.\n", $result->num_rows);
 	if($result->num_rows>0){
-
-	if($doctorInterest=='interested'){
 		$result = $mysqli->query($queryToFindDoctor);
-			$statusupdateNow = "UPDATE `patienthospital`
-			SET `book_flag` = '3',
-			reason='Will Check' 
-			WHERE 
-			doctor_ID='".$doctorID."' 
-			and book_flag=1 
-			";
+		while($row = $result->fetch_assoc()){
+			$firstName = $row['doctor_FirstName'];
+			$lastName = $row['doctor_LastName'];
+			$fullName = $firstName.' '.$lastName;
+			$doctorContactNumber = $row['doctor_ContactNu'];
+		}
 
-	}else{
-		$result = $mysqli->query($queryToFindDoctor);
-			$statusupdateNow = "UPDATE `patienthospital`
-			SET `book_flag` = '2',
-			reason='Cancel By Doctor' 
-			WHERE 
-			doctor_ID='".$doctorID."' 
-			and book_flag=1 
-			";
-	}
-		$mysqli->query($statusupdateNow);
-		echo deliver_response("success","Allowed Successfully","{$statusupdateNow}");
+		echo deliver_response("success","Subscribed Successfully","{$doctorContactNumber}");
 	}
 	else
 	{
-		echo deliver_response("failure","Already allowed. Can't allowe again to same patients","{$doctorID}");
+		echo deliver_response("failure","Searched result not found.","{$searchdoctor}");
 	}
 }
 function deliver_response($status,$status_msg,$data){

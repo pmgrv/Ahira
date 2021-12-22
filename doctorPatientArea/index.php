@@ -104,8 +104,8 @@
 		<div class="modal-content">
 		  <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
-			<h4 class="modal-title">Registration</h4>
-			<h6>New User Registration</h6>
+			<h4 class="modal-title">Receptionist Registration</h4>
+			<h6>New Receptionist Registration</h6>
 		  </div>
 		  <div class="modal-body">
 			<form role="form" id="registerform">
@@ -135,8 +135,9 @@
 			  </div> <br/>   
 				<label>Gender:
 		      <div class="form-group">
-				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="male">Male
-				<input type="radio" name="gender_receptionist" id="gender_receptionist" value="female">Female
+				<input type="radio" name="gender_receptionist" value="male">Male
+				<input type="radio" name="gender_receptionist" value="female">Female
+				<input type="radio" name="gender_receptionist" value="other">Other
 			  </div> 
 			  </label> <br/>  
 			  <a href="#" class="btn btn-success" id="submitData">Submit</a>
@@ -170,7 +171,7 @@
 		    "aadhar":$("#aadhar").val(),
 		    "dob_receptionist":$("#dob_receptionist").val(),
 		    "add_pin_code_receptionist":$("#add_pin_code_receptionist").val(),
-		    "gender_receptionist":$("input[id=gender_receptionist]:checked").val(),
+		    "gender_receptionist":$("input[name=gender_receptionist]:checked").val(),
 		    "add_at_receptionist":$("#add_at_receptionist").val()
 		  };
 		  $.ajax({

@@ -75,7 +75,7 @@ if(empty($rowData)){
 
 
 
-$queryToFindPatient = "SELECT * FROM `patientarea` as pa WHERE (pa.patient_ID) NOT IN ( SELECT ph.patient_ID FROM `patienthospital` as ph WHERE `book_flag` = 1) and ( pa.patient_FirstName like ('%$searchPatient%') or pa.patient_LastName like ('%$searchPatient%') or pa.patient_ContactNu like ('%$searchPatient%') )";
+$queryToFindPatient = "SELECT * FROM `patientarea` as pa WHERE (pa.patient_ID) NOT IN ( SELECT ph.patient_ID FROM `patienthospital` as ph WHERE `book_flag` = 1 OR `book_flag` = 3 OR `book_flag` = 4) and ( pa.patient_FirstName like ('%$searchPatient%') or pa.patient_LastName like ('%$searchPatient%') or pa.patient_ContactNu like ('%$searchPatient%') )";
 //print_r($queryToFindPatient);
 $result = $mysqli->query($queryToFindPatient);
 while($row = $result->fetch_assoc()){

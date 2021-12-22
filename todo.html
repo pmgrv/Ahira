@@ -4,7 +4,8 @@
 	<title></title>
 </head>
 <body>
-Tobenoted: patienthospital.book_flag 0-CancelledBy Patient, 1-Booked by Patient, 2-, 3-Approval By Doctor to Check, 4- Approval By Doctor to Just Next Patient tobePaid<br>
+Tobenoted: patienthospital.
+book_flag 0-Cancelled booking: CancelledBy Patient, 1-In QUEUE: Booked by Patient, 2-, 3-Will Check:Approval By Doctor to Check, 4- Approval By Doctor to Just Next Patient tobePaid 5-Paid: Accomplished Check-up<br>
 For All:
 1. Reload Page on every change query.<br>
 Doctor Area<br>
@@ -12,11 +13,63 @@ Doctor Area<br>
 3. Doctor page scrolling right side too. Done<br>
 4. Want to allow to check-up should updated Receptionist and Patients status. Yes - Can visit <br>hospital, No- Cancel button will trigger automatically. And patient should get a SMS and <br>Notification too of cancellation<br>
 5. Let get in YES- Recep should get A notification to send Next Patient. OR wait till set Time.<br>
-6. Boold group add in Patient Area and in DB.<br>
+6. Blood group add in Patient Area and in DB.<br>
 7. As doctor submitted status patient status shoud go Fees submit then after Receptionist have to submit status 5 as Completed if fees submitted.<br>
 8. To be implemented New Doctor Registration feature<br>
 9. To be implemented New Receptionist Registration feature.<br>
 10. To be added Official Hospital Opening Time in the Receptionist Dashboard.<br>
+
+Mandatory conditions:
+1. User can register only one hospital.<br>
+2. Hospital must register a patient to be seen in the dashboard of hospital list. <br>
+
+Javascript
+
+Slot 	Timing	
+5 		8:30 	Free
+6 		8:45 	Occupied
+7 		9:00	Free
+This can be managed and very helpful for Receptionist dashboard.
+
+Total patient - Total Slot (Booked/ Freed)
+
+Receptionist Dashboard:
+Filter on the basis of doctor / Token / 
+Pagination : Total of 10 patients in the list.
+
+
+Three Tabs in Receptionisht/Doctor dashboard : Upcoming, Successful, Cancelled, History
+
+Summary should be at Top i.e. History
+
+Patient isn't in the hospital, although they had registered on the platform, and meanwhile a walkin patient come around then how to handle the situation. Or what procedure will follow. 
+Type of Conslulation: Walkin/Online/
+Type of Patients : First Time / Repeative
+
+Primary and Secondary Key - Will think on it.
+
+Why doctor will use it?
+Benefits of using platform for all three user (Patient/Doctor/Receptionist)?
+-Minimize efforts
+-Reduce the Time
+-Reduce Complexity
+-More User Friendly
+
+What differnt you are doing than your Competitor(Existing platform)?
+
+Suggestion: QR Code
+Doctor Dashboard : Under Observation ~ Ongoing
+History : Online / Walkin 
+Type of Patients : First Time / Repeative
+Patient previous history/dignosis - In 2nd phase.
+Type of disease: Trauma / Accident / Ageing / Children 
+Type of Patients_Visit: IPD / OPD
+Receptionist Dashboard : For all 5 doctors who is ongoing patient and waittime as well.
+Switching Between Tables.
+
+***
+Build it in multilangual.
+
 </body>
 </html>
 

@@ -139,8 +139,8 @@
 <!-- To Get patients list to be checking-->
 				<div class="row"  style="color:#fff">
 					<?php 
-						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
-						// echo $queryToGetCountOfPatient;
+						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa WHERE ph.doctor_ID='".$doctorID."' and (ph.book_flag=1 OR ph.book_flag=3) and pa.patient_ID=ph.patient_ID ORDER BY token_no DESC";
+						//echo $queryToGetCountOfPatient;
 						$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 						$totalPatientAvailable = $resultCountOfPatient->num_rows;
 						 if($totalPatientAvailable>0){
@@ -199,38 +199,51 @@
 					</div>
 				</div>
 				<div class="row"  style="color:#fff">
-						<form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php">
-							<p id="removeOnceClickOnYes">
-							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
-							Want to allow to check-up <button href="#" class="btn btn-success" id="submitDataConfirmration" 
-								data-approvedpatientlist="<?=$totalPatientAvailable?>"
-								type="submit"
-								>ALL <?php echo $totalPatientAvailable ;
-								?></button>
-							</p>
-						</form>
-						Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a><br><br>
-						<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
-						<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
-						<input type="hidden" id="doctorID" value="<?php echo $doctorID; ?>"></input>
-						Let get in <button href="#" class="btn btn-success" id="setSendNextPatient">YES</button><br> <b style="color: orange;">OR</b><br> WAIT<a>
-						<select id="timeList">
-						  <option value="1">1</option>
-						  <option value="2">2</option>
-						  <option value="5">5</option>
-						  <option value="10">10</option>
-						  <option value="15">15</option>
-						  <option value="20">20</option>
-						  <option value="30">30</option>
-						  <option value="60">60</option>
-						</select></a> MIN
-						<input type="hidden" id="nextPatientIDWait" value="<?php echo $getNextPatientID; ?>"></input>	
-						<input type="hidden" id="nextPatientTokenWait" value="<?php echo $tokenNoNext; ?>"></input>
-						<input type="hidden" id="doctorIDWait" value="<?php echo $doctorID; ?>"></input>
-						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
-						<br><br>
+					<!-- <form method="post" action="../PHP/doctorAreaAPIs/setApprovalByDoctorForm.php"> -->
+						<p id="removeOnceClickOnYes">
+						<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
+						Want to allow to check-up all
+						<input type="hidden" id="doctorAccept" value="<?php echo $doctorID; ?>"></input>
+						<button class="btn btn-success"  id="submitYes">
+						<input type="hidden" id="interested" value="interested"></input>
+						YES</button> OR 
+						<button class="btn btn-danger"  id="submitNo">
+						<input type="hidden" id="notinterested" value="notinterested"></input>
+						NO</button>
+						<!-- <button href="#" class="btn btn-success" id="submitDataConfirmration" 
+							data-approvedpatientlist="<?=$totalPatientAvailable?>" type="submit"
+							>ALL <?php echo $totalPatientAvailable ;
+							?></button> -->
+						</p>
+					<!-- </form> -->
+					Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a><br><br>
+					<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
+					<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
+					<input type="hidden" id="doctorID" value="<?php echo $doctorID; ?>"></input>
+					Let get in 
+					<button href="#" class="btn btn-success" id="setSendNextPatient">YES</button><br> <b style="color: orange;">OR</b><br> WAIT<a>
+					<select id="timeList">
+					  <option value="1">1</option>
+					  <option value="2">2</option>
+					  <option value="5">5</option>
+					  <option value="10">10</option>
+					  <option value="15">15</option>
+					  <option value="20">20</option>
+					  <option value="30">30</option>
+					  <option value="60">60</option>
+					</select></a> MIN
+					<input type="hidden" id="nextPatientIDWait" value="<?php echo $getNextPatientID; ?>"></input>	
+					<input type="hidden" id="nextPatientTokenWait" value="<?php echo $tokenNoNext; ?>"></input>
+					<input type="hidden" id="doctorIDWait" value="<?php echo $doctorID; ?>"></input>
+					<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
+					<br><br>
 					
 				</div>
+				
+
+				<?php }
+					else{ echo "<b style='color: red;'>No patients available!</b>" ;}
+					?>
 <!-- To Get Pending patients list -->
 				<div class="row"  style="color:#fff">
 					<?php 
@@ -284,7 +297,7 @@
 									    <td><?php echo $patientFullName; ?></td>
 									    <td><?php echo $ageOfpatient;?></td>
 									    <td><a href="tel:<?php echo $patient_ContactNu; ?>"><?php echo $patient_ContactNu; ?></a></td>
-									    <td><?php echo $getReason; ?></td>
+									    <td><?php if($getReason=='To be Paid'){echo "Under Observation"; }?></td>
 									</tr>
 									<?php
 								} // End INSIDE WHILE
@@ -294,16 +307,24 @@
 						</div>
 					</div>
 				</div>
-
-				<?php }
-					else{ echo "<b style='color: red;'>Today No patients in your hospital!</b>" ;}
-					?>
 				<div class="row"  style="color:#fff">
+					<?php
+						$queryToCalCheckedPatient = "SELECT * FROM `patienthospital` 
+						WHERE doctor_ID='".$doctorID."' and  book_flag=5";
+						$resultCalCheckedPatient = $mysqli->query($queryToCalCheckedPatient);
+					?>
 					HISTORY
-					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>
-					<p>Today 20 patients checked successfully! and <?php echo $totalPatientAvailable ;?> are in the QUEUE</p>
-					<p>Yesterday, 30 patients have been checked successfully in 8 hours.</p>
-					<p>On dated 28-10-2021 Tuesday 45 patienced have bee checked in 9 hours</p>
+					<p>Total patients checked in the last
+					<select id="daydistribution" style="color: #000;">
+					  <option name="daysdist" value="7">Yesterday</option>
+					  <option name="daysdist" value="14">Week</option>
+					  <option name="daysdist" value="1">Month</option>
+					  <option name="daysdist" value="3">Quarter</option>
+					  <option name="daysdist" value="12">Year</option>
+					</select>
+					<a class="btn btn-success btn-lg btn-sm btn-xs" id="daydistributionTest">CHECK</a><br>
+					 : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>
+					<p>Today <?php echo '<b>'.$resultCalCheckedPatient->num_rows.'</b>'; ?> patient checked successfully! and <?php echo $totalPatientAvailable ;?> are in the QUEUE</p>
 				</div>
 				<?php
 
@@ -439,7 +460,6 @@
 	    $(document).on('click','#submitDataConfirmration',function(){
 		  	// $('#removeOnceClickOnYes').hide();
 	        var countofApprovedPatient = $(this).data('countofpatientapprovedbydoctor');
-	        // alert(<?php print_r($patientList) ;?>);
 		  	var json_data = {
 		    	"countofApprovedPatient":countofApprovedPatient
 		  	};
@@ -528,50 +548,150 @@
 <script type="text/javascript">
 	//Sending book_flag pending when patient is in the Hospital Queue 
 	$(document).on("click",'#setSendNextPatient',function(){
-	        var nextPatientID = $("#nextPatientID").val();
-	        var doctorIDChangedStatus = $("#doctorID").val();
-	        var nextPatientToken = $("#nextPatientToken").val();
-		  	var json_data = {
-		    	"nextPatientID":nextPatientID,
-		    	"nextPatientToken":nextPatientToken,
-		    	"doctorID":doctorIDChangedStatus
-		  	};
-			$.ajax({
-			  type:"POST",
-			  url:"../PHP/doctorAreaAPIs/setPendingByDoctor.php",
-			  data: {"DATA": JSON.stringify(json_data)},
-			  beforeSend:function(data){
-			  	alert(JSON.stringify(json_data));
-			  	alert("Getting patient inside!!");
-			  },
-			  success:function(data){
-			  	alert(data['data']);
-			  	alert("Patient Sent successfully!!");
+        var nextPatientID = $("#nextPatientID").val();
+        var doctorIDChangedStatus = $("#doctorID").val();
+        var nextPatientToken = $("#nextPatientToken").val();
+	  	var json_data = {
+	    	"nextPatientID":nextPatientID,
+	    	"nextPatientToken":nextPatientToken,
+	    	"doctorID":doctorIDChangedStatus
+	  	};
+		$.ajax({
+		  type:"POST",
+		  url:"../PHP/doctorAreaAPIs/setPendingByDoctor.php",
+		  data: {"DATA": JSON.stringify(json_data)},
+		  beforeSend:function(data){
+		  	alert(JSON.stringify(json_data));
+		  	alert("Getting patient inside!!");
+		  },
+		  success:function(data){
+		  	alert(data['data']);
+		  	alert("Patient Sent successfully!!");
+		    // window.location.replace("index.php");
+		  	// alert(JSON.stringify(json_data));
+		  },
+		  error:function(err){
+		    alert(JSON.stringify(err));
+		  }
+		});
+    });
+	$(document).on("click",'#submitYes',function(){
+        var doctorIDChangedStatus = $("#doctorID").val();
+        var doctorInterest = $("#interested").val();
+        alert(doctorInterest);
+	  	var json_data = {
+	    	"doctorID":doctorIDChangedStatus,
+	    	"doctorInterest":doctorInterest
+	  	};
+		$.ajax({
+		  type:"POST",
+		  url:"../PHP/doctorAreaAPIs/setApprovalByDoctor.php",
+		  data: {"DATA": JSON.stringify(json_data)},
+		  beforeSend:function(data){
+		  	// alert(JSON.stringify(json_data));
+		  	alert("All patiets are allowing to chekcup!!");
+		  },
+		  success:function(data){
+		  	// alert(data['status']);
+		  	if(data['status']=="failure"){
+		  		alert("Already allowed. Can't allow again to same patients");			  	
+		  		$('#submitYes').attr("disabled","disabled");
+		  		$('#submitNo').attr("disabled","disabled");
+		  	}
+		  	else{
+			  	alert("Successfully allowed!!");			  	
+		  		$('#submitYes').attr("disabled","disabled");
+		  		$('#submitNo').attr("disabled","disabled");
 			    // window.location.replace("index.php");
 			  	// alert(JSON.stringify(json_data));
-			  },
-			  error:function(err){
-			    alert(JSON.stringify(err));
-			  }
-			});
-	    });
+		  	}
+		  },
+		  error:function(err){
+		    alert(JSON.stringify(err));
+		  }
+		});
+    });
+
+
+	$(document).on("click",'#submitNo',function(){
+        var doctorIDChangedStatus = $("#doctorID").val();
+        var doctorInterest = $("#notinterested").val();
+        alert(doctorInterest);
+	  	var json_data = {
+	    	"doctorID":doctorIDChangedStatus,
+	    	"doctorInterest":doctorInterest
+	  	};
+		$.ajax({
+		  type:"POST",
+		  url:"../PHP/doctorAreaAPIs/setApprovalByDoctor.php",
+		  data: {"DATA": JSON.stringify(json_data)},
+		  beforeSend:function(data){
+		  	// alert(JSON.stringify(json_data));
+		  	alert("All patiets are allowing to chekcup!!");
+		  },
+		  success:function(data){
+		  	// alert(data['status']);
+		  	if(data['status']=="failure"){
+		  		alert("Already allowed. Can't allow again to same patients");			  	
+		  		$('#submitYes').attr("disabled","disabled");
+		  		$('#submitNo').attr("disabled","disabled");
+		  	}
+		  	else{
+			  	alert("Successfully allowed!!");			  	
+		  		$('#submitYes').attr("disabled","disabled");
+		  		$('#submitNo').attr("disabled","disabled");
+			    // window.location.replace("index.php");
+			  	// alert(JSON.stringify(json_data));
+		  	}
+		  },
+		  error:function(err){
+		    alert(JSON.stringify(err));
+		  }
+		});
+    });
 </script>
 <script>
-  $("#count-down").TimeCircles(
-   {   
-       circle_bg_color: "#8a7f71",
-       use_background: true,
-       bg_width: 1.0,
-       fg_width: 0.02,
-       time: {
-            Days: { color: "#fefeee" },
-            Hours: { color: "#fefeee" },
-            Minutes: { color: "#fefeee" },
-            Seconds: { color: "#fefeee" }
-        }
+	$("#count-down").TimeCircles(
+	{   
+	   circle_bg_color: "#8a7f71",
+	   use_background: true,
+	   bg_width: 1.0,
+	   fg_width: 0.02,
+	   time: {
+	        Days: { color: "#fefeee" },
+	        Hours: { color: "#fefeee" },
+	        Minutes: { color: "#fefeee" },
+	        Seconds: { color: "#fefeee" }
+	    }
 	   }
 	);
-
+</script>
+<script type="text/javascript">
+	$(document).on("click",'#daydistributionTest',function(){
+        var daydistribution = $("#daydistribution").val();
+        // alert(daydistribution);
+	  	var json_data = {
+	    	"daydistribution":daydistribution
+	  	};
+		$.ajax({
+		  type:"POST",
+		  url:"../PHP/doctorAreaAPIs/getCountOfPatients.php",
+		  data: {"DATA": JSON.stringify(json_data)},
+		  beforeSend:function(data){
+		  	alert(JSON.stringify(json_data));
+		  	alert("Sending your data!!");
+		  },
+		  success:function(data){
+		  	alert(data['data']);
+		  	alert("Registration successful!!");
+		    // window.location.replace("index.php");
+		  	// alert(JSON.stringify(json_data));
+		  },
+		  error:function(err){
+		    alert(JSON.stringify(err));
+		  }
+		});
+    });
 </script>
     
   </body>

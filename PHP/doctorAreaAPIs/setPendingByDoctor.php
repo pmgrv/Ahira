@@ -19,7 +19,7 @@ if(!empty($nextPatientID) & !empty($doctorID)& !empty($nextPatientToken))
 {
 $queryToGetNextPatient = "SELECT * FROM `patienthospital` WHERE 
 doctor_ID='".$doctorID."' 
-and book_flag=1 
+and (book_flag=1 OR book_flag=3)
 and patient_ID='".$nextPatientID."' 
 and token_no='".$nextPatientToken."' 
 ";
@@ -34,7 +34,7 @@ and token_no='".$nextPatientToken."'
 			reason='To be Paid' 
 			WHERE 
 			doctor_ID='".$doctorID."' 
-			and book_flag=1 
+			and (book_flag=1 OR book_flag=3)
 			and patient_ID='".$nextPatientID."' 
 			and token_no='".$nextPatientToken."' 
 			";
@@ -43,7 +43,7 @@ and token_no='".$nextPatientToken."'
 	}
 	else
 	{
-		echo deliver_response("failure","Searched result not found.","{$searchdoctor}");
+		echo deliver_response("failure","Searched result not found.","{$nextPatientID}");
 	}
 }
 function deliver_response($status,$status_msg,$data){

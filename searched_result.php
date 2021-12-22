@@ -120,6 +120,7 @@ $url = $_SERVER['REQUEST_URI'];
 $url_components = parse_url($url);
 parse_str($url_components['query'],$params);
 $searchPatient = $params['searchPatientText'];
+$latestPatientExpectedTime = '';
 $queryToFetch = "SELECT * FROM `patientarea` WHERE patient_ContactNu ='".$searchPatient."'";
 // echo $queryToFetch;
 $resultPatient = $mysqli->query($queryToFetch);
@@ -128,8 +129,8 @@ if($resultPatient->num_rows>0){
 	while($rowPatient = $resultPatient->fetch_assoc()){
 		$patient_ID = $rowPatient['patient_ID'];
 		$patientName = $rowPatient['patient_FirstName'];
-		$patient_ContactNu = $rowPatient['patient_ContactNu'];
 		$patient_LastName = $rowPatient['patient_LastName'];
+		$patient_ContactNu = $rowPatient['patient_ContactNu'];
 		$patient_DOB = $rowPatient['patient_DOB'];
 		$patient_Gender = $rowPatient['patient_Gender'];
 		$patient_At = $rowPatient['patient_At'];
@@ -138,16 +139,17 @@ if($resultPatient->num_rows>0){
 
 /*$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '$patient_ID' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.allowedTime >CURRENT_TIMESTAMP() 
 GROUP BY ph.hospitalID";//Actual Query*/
-$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient,ha.status FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '".$patient_ID."' and book_flag='1') and ha.hospitalID = ph.hospitalID and ph.book_flag='1' GROUP BY ph.hospitalID";//Temporary Query ph.book_flag='1' / ha.status='1'
+$fetchAllBookAbleHospital = "SELECT  ph.hospitalID,ha.hospitalName,ha.hospitalPhone,ha.hospitalAddress,ha.hospitalPinCode,ha.fees,count(ph.hospitalID) as countPatient,ha.status FROM `hospitalarea` as ha, `patienthospital` as ph WHERE ha.hospitalID not in (SELECT hospitalID FROM `patienthospital` where patient_ID = '".$patient_ID."' and book_flag='1') and ha.hospitalID = ph.hospitalID and (ph.book_flag='1' OR book_flag='4') GROUP BY ph.hospitalID";//Temporary Query ph.book_flag='1' / ha.status='1'
 //echo $fetchAllBookAbleHospital;
 $result = $mysqli->query($fetchAllBookAbleHospital);
 if($result->num_rows>0){
 	$result = $mysqli->query($fetchAllBookAbleHospital);
 	
-?>
+	?>
 			<div class="sun clearfix attop">
 				<div id="right-block" class="col-sm-12" >
-
+				<?php echo 'Patient Name: <b style="font-weight: 20px; color:#fff;">'.$patientName.' '.$patient_LastName.'</b> <br>'. 'DOB: <b style="font-weight: 20px; color:#fff;">'.$patient_DOB.'</b> '.'Gender : <b style="font-weight: 20px; color:#fff;">'.$patient_Gender.'</b> <br>';
+				?>
 					<table id="hospital" >
 					  <tr>
 					    <th style="font-weight: 20px; color:#fff;">Hospital Name</th>
@@ -159,7 +161,7 @@ if($result->num_rows>0){
 					  <?php 
 					while($rowHospital = $result->fetch_assoc()){
 					$countPatient= $rowHospital['countPatient']; 
-					$fetchLatestBookedRegisterd = "SELECT * FROM `patienthospital` WHERE book_flag = 1 and hospitalID = '".$rowHospital['hospitalID']."' ORDER by allowedTime DESC LIMIT 1";
+					$fetchLatestBookedRegisterd = "SELECT * FROM `patienthospital` WHERE (book_flag = 1 OR book_flag=3 OR book_flag=4) and hospitalID = '".$rowHospital['hospitalID']."' ORDER by allowedTime DESC LIMIT 1";
 					//echo $fetchLatestBookedRegisterd.'<br>' ;
 
 					$resultFetchAT = $mysqli->query($fetchLatestBookedRegisterd);
@@ -169,7 +171,7 @@ if($result->num_rows>0){
 							$latestPatientExpectedTime = $latestPatient['allowedTime'];
 						}
 					}
-/*Calculating Timing to arrive*/
+	/*Calculating Timing to arrive*/
 			  	//For assuming average time is 15 minute.. It'll vary on the basis of daily checkup patient : $numberAllotTime = $totalPatient * $averageTime
 			  //$hospitalID - Change it with Total Number of patient in the Queue ~ $patientInTheQueue
 
@@ -219,8 +221,9 @@ $expectedTimeToVisitOffice  = $time->format('Y-m-d H:i:s');
 					<a href="index.php" class="btn btn-success" >HOME</a><br>
 <?php	
 }//End If 
+else{ echo "<b style='color: red;'>Hospital is not open!</b>" ;}
 // $getBookedPatient = "SELECT * FROM `patienthospital` as ph, `hospitalarea` as ha where ph.hospitalID = ha.hospitalID and patient_ID = '$patient_ID' and book_flag='1' and allowedTime >= CURRENT_TIMESTAMP() ";//Actual
-$getBookedPatient = "SELECT * FROM `patienthospital` as ph, `hospitalarea` as ha where ph.hospitalID = ha.hospitalID and patient_ID = '$patient_ID' and book_flag='1'";//Temporary
+$getBookedPatient = "SELECT * FROM `patienthospital` as ph, `hospitalarea` as ha where ph.hospitalID = ha.hospitalID and patient_ID = '$patient_ID' and (book_flag='1' OR book_flag='3' OR book_flag='4')";//Temporary
 // print_r($getBookedPatient);
 $result = $mysqli->query($getBookedPatient);
 if($result->num_rows<=1){
@@ -244,41 +247,60 @@ if($result->num_rows<=1){
 					  	while($rowHospitalBooked = $result->fetch_assoc()){
 							$hospitalID=$rowHospitalBooked['hospitalID'];
 							$expectedTimeToVisitOfficeCancel=$rowHospitalBooked['allowedTime'];
+							if($rowHospitalBooked['book_flag']==1){
 					  		?>
+<!-- IF just booked then show cancel -->
+						<tr>
+							<td><?php echo $hospitalName = $rowHospitalBooked['hospitalName']; ?></td>
+							<td><?php echo $rowHospitalBooked['token_no']; ?></td>
+							<td><?php print_r($rowHospitalBooked['fees']); ?></td>
+							<td><div id="count-down" data-date="<?php echo $rowHospitalBooked['allowedTime']; ?>"></div>
+							<?php echo $rowHospitalBooked['allowedTime'];
+							date_default_timezone_set('Asia/Kolkata');
+							if($rowHospitalBooked['allowedTime']<=date("Y-m-d H:i:s", time())){
+								/*$dt1 = date("Y-m-d H:i:s", time());
+								echo "2nd >> ".$dt2 = $rowHospitalBooked['allowedTime']->format('d/m/Y');
+								$interval = $dt1->diff($dt2);
+								echo $elapsedTime = $interval->format('%i Minutes');*/
+								?>
+								
+								<input type="hidden" name="reframeTime"id="reframeTime" value="<?php echo $allowedTime;?>">
+								<div id="timestamp">Timer here too...</div>
+							<?php 
 
-					  <tr>
-					    <td><?php echo $hospitalName = $rowHospitalBooked['hospitalName']; ?></td>
-					    <td><?php echo $rowHospitalBooked['token_no']; ?></td>
-					    <td><?php print_r($rowHospitalBooked['fees']); ?></td>
-					    <td><div id="count-down" data-date="<?php echo $rowHospitalBooked['allowedTime']; ?>"></div>
-					    <?php echo $rowHospitalBooked['allowedTime'];
-    					date_default_timezone_set('Asia/Kolkata');
-					    if($rowHospitalBooked['allowedTime']<=date("Y-m-d H:i:s", time())){
-					    	/*$dt1 = date("Y-m-d H:i:s", time());
-					    	echo "2nd >> ".$dt2 = $rowHospitalBooked['allowedTime']->format('d/m/Y');
-					    	$interval = $dt1->diff($dt2);
-					    	echo $elapsedTime = $interval->format('%i Minutes');*/
-					    	?>
-					    	
-					    	<input type="hidden" name="reframeTime"id="reframeTime" value="<?php echo $allowedTime;?>">
-							<div id="timestamp">Timer here too...</div>
-						<?php 
-
-					    }//End inside if
-					    ?>
-					    </td>
-					    <td><span class="input-group-btn">
-							<a id="searchHospitalNowCancel" class="btn btn-success " data-toggle="modal" 
-							data-target="#hospitalBookingCancel"
-							data-hospitalnametosendcancel="<?=$hospitalName?>" 
-							data-hospitalidtosendcancel="<?=$hospitalID?>" 
-							data-patientidtosendcancel="<?=$patient_ID?>"
-							data-tokennotosendcancel="<?=$rowHospitalBooked['token_no']?>"
-							data-totalestimatedtimecancel="<?=$expectedTimeToVisitOfficeCancel?>">CANCEL</a>
-							</span>
-						</td>
-					  </tr>
-					  <?php }//End While
+							}//End inside if
+							?>
+							</td>
+							<td><span class="input-group-btn">
+								<a id="searchHospitalNowCancel" class="btn btn-success " data-toggle="modal" 
+								data-target="#hospitalBookingCancel"
+								data-hospitalnametosendcancel="<?=$hospitalName?>" 
+								data-hospitalidtosendcancel="<?=$hospitalID?>" 
+								data-patientidtosendcancel="<?=$patient_ID?>"
+								data-tokennotosendcancel="<?=$rowHospitalBooked['token_no']?>"
+								data-totalestimatedtimecancel="<?=$expectedTimeToVisitOfficeCancel?>">CANCEL</a>
+								</span>
+							</td>
+						</tr>
+						<?php }
+						if($rowHospitalBooked['book_flag']==3 OR $rowHospitalBooked['book_flag']==4){?>
+					  	<tr>
+							<td><?php echo $hospitalName = $rowHospitalBooked['hospitalName']; ?></td>
+							<td><?php echo $rowHospitalBooked['token_no']; ?></td>
+							<td><?php print_r($rowHospitalBooked['fees']); ?></td>
+							<td>
+							<?php echo $rowHospitalBooked['allowedTime'];
+							date_default_timezone_set('Asia/Kolkata');
+							if($rowHospitalBooked['allowedTime']<=date("Y-m-d H:i:s", time())){?>
+							<?php 
+							}//End inside if
+							?>
+							</td>
+							<td>In Progress
+							</td>
+						</tr>
+					  <?php }//Internal else Case END
+					  }//End While
 					  }  
 					  else { ?>
 					  <tr style="font-weight: 20px; color:#fff;">
@@ -586,34 +608,36 @@ $fullName = $patientName .' '. $patient_LastName;
 			 /*Value sending to API*/
 			 //Sending values to do finalization of Booking Slot
 		    $(document).on('click','#submitDataBookToAcknowledge',function(){
-			  var json_data = {
-			    "hospitalid":hospitalidtosend,
-			    "patientID":patientidtosend,
-			    "token_no":totalpatienttosend,
-			    "doctor_ID":$("input[name=doctorName]:checked").val(),
-			    "totalestimatedtime":totalestimatedtime
-			  };
-			  $.ajax({
-			  type:"POST",
-			  url:"PHP/getPatientHospital.php",
-			  data: {"DATA": JSON.stringify(json_data)},
-			  beforeSend:function(data){
-			  	// alert(JSON.stringify(json_data));
-			  	//alert("Sending your data!!");
-			  },
-			  success:function(data){
-			  	alert(data['data']);
-				/*setTimeout(() => { alert("Your slot Booked Succesfully!!"); }, 200);
-		 		$('#hospitalBooking').modal('hide');
-				setTimeout(() => { location.reload(); }, 2000);*/
-			   // window.location.replace("index.php");
-			  	// alert(JSON.stringify(json_data));
-			  },
-			  error:function(err){
-			    alert(JSON.stringify(err));
-			  }
-			  });
-			});
+
+		  		$('#submitDataBookToAcknowledge').attr("disabled","disabled");
+				var json_data = {
+					"hospitalid":hospitalidtosend,
+					"patientID":patientidtosend,
+					"token_no":totalpatienttosend,
+					"doctor_ID":$("input[name=doctorName]:checked").val(),
+					"totalestimatedtime":totalestimatedtime
+				};
+				$.ajax({
+					type:"POST",
+					url:"PHP/getPatientHospital.php",
+					data: {"DATA": JSON.stringify(json_data)},
+					beforeSend:function(data){
+					// alert(JSON.stringify(json_data));
+					//alert("Sending your data!!");
+				},
+				success:function(data){
+					// alert(data['data']);
+					setTimeout(() => { alert("Your slot Booked Succesfully!!"); }, 200);
+					$('#hospitalBooking').modal('hide');
+					/*setTimeout(() => { location.reload(); }, 2000);*/
+					// window.location.replace("index.php");
+						// alert(JSON.stringify(json_data));
+				},
+				error:function(err){
+					alert(JSON.stringify(err));
+				}
+				});
+				});
 			 /*END API*/
 		});
 	});

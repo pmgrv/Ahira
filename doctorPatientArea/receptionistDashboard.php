@@ -152,7 +152,7 @@
 <!-- To Get patients list to be checking-->
 				<div class="row"  style="color:#fff">
 					<?php 
-						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa, `doctorarea` as da WHERE ph.hospitalID='".$hospitalID."' and ph.book_flag=1 and pa.patient_ID=ph.patient_ID and da.doctor_ID=ph.doctor_ID ORDER BY allowedTime ASC";
+						$queryToGetCountOfPatient = "SELECT * FROM `patienthospital` as ph, `patientarea` as pa, `doctorarea` as da WHERE ph.hospitalID='".$hospitalID."' and (ph.book_flag=1 OR ph.book_flag=3) and pa.patient_ID=ph.patient_ID and da.doctor_ID=ph.doctor_ID ORDER BY allowedTime ASC";
 						// echo $queryToGetCountOfPatient;
 						$resultCountOfPatient = $mysqli->query($queryToGetCountOfPatient);
 						$totalPatientAvailable = $resultCountOfPatient->num_rows;
@@ -220,7 +220,7 @@
 					</div>
 				</div>
 				<div class="row"  style="color:#fff">
-						<form method="post" action="../PHP/receptionistAreaAPIs/setApprovalByreceptionistForm.php">
+						<!-- <form method="post" action="../PHP/receptionistAreaAPIs/setApprovalByreceptionistForm.php">
 							<p id="removeOnceClickOnYes">
 							<input type="hidden" name="patientList[]" value="<?php print_r($patientList); ?>"></input>
 								<button href="#" class="btn btn-success" id="submitDataConfirmration" 
@@ -229,7 +229,7 @@
 								>ALL <?php echo $totalPatientAvailable ;
 								?></button>
 							</p>
-						</form>
+						</form> -->
 						Next patient: <a href="" id="showpatientList" value="<?php echo $getNextPatient;?>"  class="btn btn-danger" ><?php echo $getNextPatient;?></a><br><br>
 						<input type="hidden" id="nextPatientID" value="<?php echo $getNextPatientID; ?>"></input>						
 						<input type="hidden" id="nextPatientToken" value="<?php echo $tokenNoNext; ?>"></input>
@@ -248,6 +248,9 @@
 						<input class="btn btn-success" id="waitingTime" type="submit" value="Submit">
 						<br><br>
 				</div>
+				<?php }
+					else{ echo "<b style='color: red;'>No patients in the queue!</b>" ;}
+				?>
 <!-- To Get Pending patients list -->
 				<div class="row"  style="color:#fff">
 					<?php 
@@ -295,7 +298,7 @@
 									$patientAdd =  $rowCountOfPatientPending['patient_At'];
 									$token_no =  $rowCountOfPatientPending['token_no'];
 									$getNextPatientID =  $rowCountOfPatientPending['patient_ID'];
-									echo $getNextPatientIDsend =  $rowCountOfPatientPending['patient_ID'];
+									$getNextPatientIDsend =  $rowCountOfPatientPending['patient_ID'];
 									$getReason =  $rowCountOfPatientPending['reason'];
 									// $patientList[]=$token_no;
 									array_push($patientList, $token_no);
@@ -336,9 +339,7 @@
 				</div>
 
 
-			<?php }
-			else{ echo "<b style='color: red;'>Today No patients in your hospital!</b>" ;}
-			?>
+			
 				<div class="row"  style="color:#fff">
 					HISTORY
 					<p>Total patients checked in the last WEEK : <b>300</b> <t>FREE: <b>5</b> PAID: <b>295</b></t></p>
